@@ -1,13 +1,12 @@
 <template>
-    <sidebarcomp class="lg:hidden" :items="sidebar_item" :visible="visibleSidebar"
-        @toggle-drawer="toggleSidebar()" />
+    <sidebarcomp class="lg:hidden " :items="sidebar_item" :visible="visibleSidebar" @logout="onLogout()" @toggle-drawer="toggleSidebar()" />
     <div class="flex h-full overflow-hidden">
-        <div class="max-lg:hidden bg-gray-100 border-r-2 w-[300px] h-[100]">
+        <div class="max-lg:hidden bg-gray-100 border-r-2 w-[300px]">
             <div class="bg-white px-4 py-5 select-none heading">
                 <p class="font-bold text-4xl">Dashboard</p>
                 <p class="mt-1">{{this.default.title}}</p>
             </div>
-            <sidebarpanelcomp :items="sidebar_item"></sidebarpanelcomp>
+            <sidebarpanelcomp :items="sidebar_item" @logout="onLogout()"></sidebarpanelcomp>
         </div>
         <div class="flex flex-col w-full content">
             <dbheadercomp @toggle-drawer="toggleSidebar()"></dbheadercomp>
@@ -57,11 +56,36 @@
                             {
                                 label: 'Data Alumni',
                                 icon: 'pi pi-users',
+                                to: 'input alumni'
                             },
                             {
                                 label: 'Berita',
                                 icon: 'pi pi-info-circle',
                                 to: 'input berita'
+                            },
+                            {
+                                label: 'Event',
+                                icon: 'pi pi-calendar',
+                                to: 'input event'
+                            },
+                            {
+                                label: 'Loker',
+                                icon: 'pi pi-briefcase',
+                                to: 'input loker'
+                            },
+                        ]
+                    },
+                    {
+                        label: 'Database',
+                        icon: 'pi pi-database',
+                        items: [
+                            {
+                                label: 'Data Alumni',
+                                icon: 'pi pi-users',
+                            },
+                            {
+                                label: 'Berita',
+                                icon: 'pi pi-info-circle',
                             },
                             {
                                 label: 'Event',
@@ -75,18 +99,63 @@
                         to: 'profile',
                     },
                     {
+                        label: 'Accounts',
+                        icon: 'pi pi-shield',
+                        onlysu: true,
+                        items: [
+                            {
+                                label: 'Admin',
+                                icon: 'pi pi-user',
+                            },
+                            {
+                                label: 'User',
+                                icon: 'pi pi-users',
+                            },
+                            {
+                                label: 'Ban',
+                                icon: 'pi pi-ban',
+                            }
+                        ]
+                    },
+                    {
                         label: 'Sign Out',
                         icon: 'pi pi-sign-out',
-                        to: 'login',
+                        specialAction: 'logout'
                     },
                 ]
             }
         },
+        computed: {
+            ...mapGetters({
+                role: 'auth/role'
+            }),
+            // filter sidebar item based on user role, if item has onlysudo property, it will be removed if user is not sudo. instead of return, it will be assigned to sidebar_item
+        },
         methods: {
+            ...mapActions({
+                logout: 'auth/logout'
+            }),
             toggleSidebar() {
                 this.visibleSidebar = !this.visibleSidebar;
+            },
+            filterItem() {
+                this.sidebar_item = this.sidebar_item.filter((item) => {
+                    // if item has onlysudo property, it will be removed if user is not sudo
+                    if (item.onlysu && this.role !== 'superadmin') {
+                        return false;
+                    }
+                    return true;
+                });
+            },
+            onLogout() {
+                this.logout().then(() => {
+                    this.$router.push({ name: 'login' });
+                });
             }
         },
+        mounted() {
+            this.filterItem();
+        }
     }
 </script>
 

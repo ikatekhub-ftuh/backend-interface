@@ -3,20 +3,19 @@
         <!-- debug -->
         <div class="top-0 absolute">
             {{form}}
-            {{sent}}
         </div>
         <!-- main -->
-        <form @submit.prevent="onSubmit()"  class="card">
+        <form @submit.prevent="onSubmit()" class="card">
             <div>
                 <p class="text-heading">Masuk</p>
                 <p class="mt-[-5px]">Ke {{this.default.title}}</p>
             </div>
-            <div  class="flex flex-col gap-2">
+            <div class="flex flex-col gap-2">
                 <InputGroup>
                     <InputGroupAddon>
                         <i class="pi pi-user"></i>
                     </InputGroupAddon>
-                    <InputText v-model="form.username" placeholder="Username" required/>
+                    <InputText v-model="form.username" placeholder="Username" required />
                 </InputGroup>
                 <InputGroup>
                     <InputGroupAddon>
@@ -41,15 +40,21 @@
                     username: '',
                     password: '',
                 },
-                sent: false,
             }
         },
         methods: {
+            ...mapActions({
+                login: 'auth/login'
+            }),
             onSubmit() {
-                this.sent = true;
-                setTimeout(() => {
-                    this.$router.push({name: 'dashboard'})
-                }, 3000);
+                this.login(this.form).then((res) => {
+                    if (res) {
+                        console.log(res)
+                        this.$router.push({ name: 'dashboard' });
+                    }
+                }).catch((err) => {
+                    console.log(err)
+                })
             }
         },
         inject: ['default']

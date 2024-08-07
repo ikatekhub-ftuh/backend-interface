@@ -14,6 +14,7 @@ const routes = [
     {
         path: '/shell/db', name: 'dashboardshell',
         component: () => import('../shell/DashboardShell.vue'),
+        meta: { requiresAuth: true },
         children: [
             {
                 path: '/dashboard',
@@ -21,9 +22,25 @@ const routes = [
                 component: () => import('../views/Dashboard.vue'),
             },
             {
-                path: '/berita',
+                path: '/input/berita',
                 name: 'input berita',
                 component: () => import('../views/subview_dashboard/input/News.vue'),
+            },
+            {
+                path: '/input/alumni',
+                name: 'input alumni',
+                component: () => import('../views/subview_dashboard/input/Alumni.vue'),
+            },
+            // event
+            {
+                path: '/input/event',
+                name: 'input event',
+                component: () => import('../views/subview_dashboard/input/Event.vue'),
+            },
+            {
+                path: '/input/loker',
+                name: 'input loker',
+                component: () => import('../views/subview_dashboard/input/Loker.vue'),
             },
         ]
     },
@@ -32,6 +49,14 @@ const routes = [
 const router = createRouter({
     history: createWebHistory(),
     routes,
+})
+
+router.beforeEach((to, from, next) => {
+    if (to.meta.requiresAuth && !localStorage.getItem('token')) {
+        next({ name: 'login' })
+    } else {
+        next()
+    }
 })
 
 export default router

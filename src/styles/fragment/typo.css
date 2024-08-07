@@ -1,5 +1,5 @@
 :root {
-    --text-dark: #333;
+    --text-dark: #3d3d3d;
     --text-light: #fff;
     --text-large: 3rem;
 }
@@ -12,4 +12,8 @@
 
 p, .p {
     color: var(--text-dark);
+}
+
+.info {
+    @apply text-sm text-primary;
 }

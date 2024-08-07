@@ -3,11 +3,14 @@
     Home
   </div>
   <div>
-    <router-link class="ml-2" v-for="item in $router.options.routes" :to="{name: item.name}">{{item.name}}</router-link>
+    <Button><router-link :to="{name: 'dashboard'}">Lewat Sini</router-link></Button>
   </div>
 </template>
 
 <script>
+  export default {
+    name: 'Home',
+  }
 </script>
 
 <style scoped>

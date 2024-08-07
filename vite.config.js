@@ -24,6 +24,7 @@ export default defineConfig({
         'vue-router',
         {
           'axios': [['default', 'axios']],
+          'vuex': ['mapState', 'mapGetters', 'mapMutations', 'mapActions'],
         }
       ]
     })

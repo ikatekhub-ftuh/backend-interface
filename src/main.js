@@ -7,7 +7,13 @@ import ConfirmationService from 'primevue/confirmationservice';
 import ToastService from 'primevue/toastservice';
 import PrimeVue from 'primevue/config'
 import Aura from '@primevue/themes/aura'
+import Qrcode from 'qrcode.vue'
+import axios from 'axios'
 
+import store from './store'
+import './store/subscriber'
+axios.defaults.baseURL = 'http://127.0.0.1:8000/api/'
+store.dispatch('auth/attempt', localStorage.getItem('token')).then(() => {
 
 createApp(App)
     .use(router)
@@ -25,4 +31,8 @@ createApp(App)
         }})
     .use(ConfirmationService)
     .use(ToastService)
+    .use(store)
+    .component('qrcode', Qrcode)
     .mount('#app')
+
+})

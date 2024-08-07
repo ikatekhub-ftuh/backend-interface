@@ -1,6 +1,6 @@
 <template>
-  <ConfirmPopup></ConfirmPopup>
-  <ConfirmDialog></ConfirmDialog>
+  <ConfirmPopup class="max-lg:hidden" group="popup"></ConfirmPopup>
+  <ConfirmDialog class="lg:hidden" group="dialog"></ConfirmDialog>
   <Toast class="max-lg:hidden"></Toast>
   <div class="page">
     <router-view></router-view>
