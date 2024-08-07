@@ -1,5 +1,7 @@
 <template>
   <ConfirmPopup></ConfirmPopup>
+  <ConfirmDialog></ConfirmDialog>
+  <Toast class="max-lg:hidden"></Toast>
   <div class="page">
     <router-view></router-view>
   </div>
