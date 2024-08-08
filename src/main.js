@@ -18,15 +18,11 @@ import Qrcode from 'qrcode.vue'
 import axios from 'axios'
 // axios.defaults.baseURL = 'http://127.0.0.1:8000/api/'
 
-// for ngrok, delete when not using ngrok
-axios.defaults.baseURL = 'https://26cd-140-213-1-226.ngrok-free.app/api/';
-const ngrokHeader = {
-    'ngrok-skip-browser-warning': 'true',
-    'accept': 'application/json',
-}
+import config from './config'
+axios.defaults.baseURL = config.baseURL;
 axios.defaults.headers.common = {
     ...axios.defaults.headers.common,
-    ...ngrokHeader
+    ...config.headers,
 }
 
 // store.dispatch('auth/attempt', localStorage.getItem('token')).then(() => {
