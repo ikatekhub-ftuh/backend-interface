@@ -55,6 +55,7 @@ FIXME thumbnail doesnt reach v-model
         <div class="text-wrap max-w-full">
             {{news}}
             {{news.cat.id_kategori_berita}}
+            {{ cat }}
         </div>
     </div>
 </template>
@@ -75,10 +76,6 @@ FIXME thumbnail doesnt reach v-model
                     cat: '',
                 },
                 cat: [
-                    { id_kategori_berita: 1, kategori: 'Berita' },
-                    { id_kategori_berita: 2, kategori: 'Pengumuman' },
-                    { id_kategori_berita: 3, kategori: 'Acara' },
-                    { id_kategori_berita: 41, kategori: 'Lainnya' },
                 ]
             }
         },
@@ -118,8 +115,20 @@ FIXME thumbnail doesnt reach v-model
             changeImg(img) {
                 this.news.thumbnail = img;
                 console.log(this.news.thumbnail);
+            },
+            fetchCat() {
+                axios.get('berita/kategori')
+                    .then((res) => {
+                        this.cat = res.data.data;
+                    })
+                    .catch((err) => {
+                        console.log(err);
+                    })
             }
         },
+        mounted() {
+            this.fetchCat();
+        }
     }
 </script>
 

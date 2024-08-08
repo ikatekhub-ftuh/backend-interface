@@ -17,11 +17,6 @@
         res: ''
       }
     },
-    methods: {
-    },
-    mounted() {
-      // this.test()
-    }
   }
 </script>
 
