@@ -1,19 +1,35 @@
 import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
+
 import './styles/base.css'
+
 import 'primeicons/primeicons.css'
 import ConfirmationService from 'primevue/confirmationservice';
 import ToastService from 'primevue/toastservice';
 import PrimeVue from 'primevue/config'
 import Aura from '@primevue/themes/aura'
-import Qrcode from 'qrcode.vue'
-import axios from 'axios'
 
-import store from './store'
-import './store/subscriber'
-axios.defaults.baseURL = 'http://127.0.0.1:8000/api/'
-store.dispatch('auth/attempt', localStorage.getItem('token')).then(() => {
+import Qrcode from 'qrcode.vue'
+
+// import store from './store'
+// import './store/subscriber'
+
+import axios from 'axios'
+// axios.defaults.baseURL = 'http://127.0.0.1:8000/api/'
+
+// for ngrok, delete when not using ngrok
+axios.defaults.baseURL = 'https://26cd-140-213-1-226.ngrok-free.app/api/';
+const ngrokHeader = {
+    'ngrok-skip-browser-warning': 'true',
+    'accept': 'application/json',
+}
+axios.defaults.headers.common = {
+    ...axios.defaults.headers.common,
+    ...ngrokHeader
+}
+
+// store.dispatch('auth/attempt', localStorage.getItem('token')).then(() => {
 
 createApp(App)
     .use(router)
@@ -31,8 +47,8 @@ createApp(App)
         }})
     .use(ConfirmationService)
     .use(ToastService)
-    .use(store)
+    // .use(store)
     .component('qrcode', Qrcode)
     .mount('#app')
 
-})
+// })

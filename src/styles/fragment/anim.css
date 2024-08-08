@@ -1,0 +1,3 @@
+.animated, .panimated > *, .sanimated * {
+    transition: all 0.3s cubic-bezier(.7,0,.25,1)
+}

@@ -43,9 +43,9 @@
             }
         },
         methods: {
-            ...mapActions({
-                login: 'auth/login'
-            }),
+            // ...mapActions({
+            //     login: 'auth/login'
+            // }),
             onSubmit() {
                 this.login(this.form).then((res) => {
                     if (res) {

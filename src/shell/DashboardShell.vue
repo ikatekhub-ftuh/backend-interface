@@ -126,36 +126,42 @@
             }
         },
         computed: {
-            ...mapGetters({
-                role: 'auth/role'
-            }),
+            // ...mapGetters({
+            //     role: 'auth/role'
+            // }),
             // filter sidebar item based on user role, if item has onlysudo property, it will be removed if user is not sudo. instead of return, it will be assigned to sidebar_item
         },
         methods: {
-            ...mapActions({
-                logout: 'auth/logout'
-            }),
+            // ...mapActions({
+            //     logout: 'auth/logout'
+            // }),
             toggleSidebar() {
                 this.visibleSidebar = !this.visibleSidebar;
             },
-            filterItem() {
-                this.sidebar_item = this.sidebar_item.filter((item) => {
-                    // if item has onlysudo property, it will be removed if user is not sudo
-                    if (item.onlysu && this.role !== 'superadmin') {
-                        return false;
-                    }
-                    return true;
-                });
-            },
+            // filterItem() {
+            //     this.sidebar_item = this.sidebar_item.filter((item) => {
+            //         // if item has onlysudo property, it will be removed if user is not sudo
+            //         if (item.onlysu && this.role !== 'superadmin') {
+            //             return false;
+            //         }
+            //         return true;
+            //     });
+            // },
             onLogout() {
                 this.logout().then(() => {
                     this.$router.push({ name: 'login' });
                 });
             }
         },
-        mounted() {
-            this.filterItem();
-        }
+        // wait for role to be fetched before filtering sidebar item
+        // watch: {
+        //     role: {
+        //         immediate: true,
+        //         handler() {
+        //             this.filterItem();
+        //         }
+        //     }
+        // }
     }
 </script>
 
