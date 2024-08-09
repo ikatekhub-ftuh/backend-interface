@@ -42,6 +42,11 @@ const routes = [
                 name: 'input loker',
                 component: () => import('../views/subview_dashboard/input/Loker.vue'),
             },
+            {
+                path: '/input/perusahaan',
+                name: 'input perusahaan',
+                component: () => import('../views/subview_dashboard/input/Perusahaan.vue'),
+            },
         ]
     },
 ]

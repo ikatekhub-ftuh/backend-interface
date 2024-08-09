@@ -73,6 +73,11 @@
                                 icon: 'pi pi-briefcase',
                                 to: 'input loker'
                             },
+                            {
+                                label: 'Perusahaan',
+                                icon: 'pi pi-building',
+                                to: 'input perusahaan'
+                            },
                         ]
                     },
                     {

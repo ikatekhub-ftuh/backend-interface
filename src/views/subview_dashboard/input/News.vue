@@ -116,6 +116,7 @@ FIXME thumbnail doesnt reach v-model
                 this.news.thumbnail = img;
                 console.log(this.news.thumbnail);
             },
+            
             fetchCat() {
                 axios.get('berita/kategori')
                     .then((res) => {

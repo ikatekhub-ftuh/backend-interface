@@ -7,20 +7,55 @@ TODO select location mungkin dikasih input biasa?
         <div class="flex flex-wrap justify-between">
             <div class="flex flex-wrap gap-4 max-md:flex-col max-md:w-full">
                 <div>
-                    <p class="mb-2 font-semibold text-xl">Nama Event</p>
-                    <InputText v-model="event.title" placeholder="Judul Event"
-                        v-tooltip.bottom="{ value: 'Masukkan judul event anda di sini', showDelay: 1000, hideDelay: 300 }" fluid/>
+                    <p class="mb-2 font-semibold text-xl">Posisi</p>
+                    <InputText v-model="loker.title" placeholder="Nama posisi"
+                        v-tooltip.bottom="{ value: 'Masukkan nama posisi anda di sini', showDelay: 1000, hideDelay: 300 }"
+                        fluid />
                 </div>
+                {{ loker.company }}
                 <div>
-                    <p class="mb-2 font-semibold text-xl">Penyelenggara</p>
-                    <InputText v-model="event.author" placeholder="Penyelenggara Event"
-                        v-tooltip.bottom="{ value: 'Masukkan nama penyelenggara di sini', showDelay: 1000, hideDelay: 300 }" fluid/>
+                    <p class="mb-2 font-semibold text-xl">Perusahaan</p>
+                    <Select v-model="loker.company" filter optionLabel="nama_perusahaan" :options="company" placeholder="Nama perusahaan" class="w-full md:w-56">
+                        <template #value="slotProps">
+                            <div v-if="slotProps.value" class="flex items-center">
+                                <div>{{ slotProps.value.nama_perusahaan }}</div>
+                            </div>
+                            <span v-else>
+                                {{ slotProps.placeholder }}
+                            </span>
+                        </template>
+                        <template #option="slotProps">
+                            <div class="flex justify-between gap-2">{{ slotProps.option.nama_perusahaan }}</div>
+                        </template>
+                    </Select>
                 </div>
                 <div>
                     <p class="mb-2 font-semibold text-xl">Lokasi</p>
-                    
-                    <Select v-model="event.location" :options="items" filter optionLabel="name" placeholder="Kategori"
-                        class="w-full md:w-56">
+                    <InputText v-model="loker.location" placeholder="Lokasi perusahaan"
+                        v-tooltip.bottom="{ value: 'Masukkan lokasi perusahaan di sini', showDelay: 1000, hideDelay: 300 }"
+                        fluid />
+                </div>
+                <div>
+                    <p class="mb-2 font-semibold text-xl">Tanggal selesai</p>
+                    <DatePicker v-model="loker.end" :min-date="minDate" showIcon showButtonBar
+                        placeholder="Durasi loker" :manualInput="false" fluid />
+                    <p class="info" v-if="loker.end">Loker akan beredar selama {{ dayUntillStop }} hari.</p>
+                </div>
+                <div>
+                    <p class="mb-2 font-semibold text-xl">Pengalaman</p>
+                    <InputNumber showButtons buttonLayout="horizontal" :min="0" :max="99" v-model="loker.experience"
+                        inputId="withoutgrouping" :useGrouping="false" :step="1" fluid>
+                        <template #incrementbuttonicon>
+                            <span class="pi pi-plus" />
+                        </template>
+                        <template #decrementbuttonicon>
+                            <span class="pi pi-minus" />
+                        </template>
+                    </InputNumber>
+                </div>
+                <div>
+                    <p class="mb-2 font-semibold text-xl">Jenis Pekerjaan</p>
+                    <Select v-model="loker.role" :options="options"  placeholder="Kategori" class="w-full md:w-56">
                         <template #value="slotProps">
                             <div v-if="slotProps.value" class="flex items-center">
                                 <div>{{ slotProps.value }}</div>
@@ -30,129 +65,115 @@ TODO select location mungkin dikasih input biasa?
                             </span>
                         </template>
                         <template #option="slotProps">
-                            <div>{{ slotProps.option }}</div>
+                            <div class="flex justify-between gap-2">{{ slotProps.option }}</div>
                         </template>
                     </Select>
+                    <p v-if="loker.role === 'Lainnya'" class="info">Jelaskan di deskripsi lowongan kerja.</p>
                 </div>
-                <div>
-                    <p class="mb-2 font-semibold text-xl">Tanggal Event</p>
-                    <DatePicker v-model="event.start" :min-date="minDate" showIcon showButtonBar selectionMode="range" placeholder="Tanggal lahir"  :manualInput="false" fluid/>
-                    <p class="info" v-if="event.start">Loker akan beredar {{ dayUntillPost }} hari lagi.</p>
-                    <p class="info" v-if="event.start && dayUntillStop">Loker akan berhenti beredar setelah {{ dayUntillStop }} hari.</p>
-                </div>
-                <div>
-                    <p class="mb-2 font-semibold text-xl">Kuota</p>
-                    <InputNumber showButtons buttonLayout="horizontal" :min="1" v-model="event.max"
-                        inputId="withoutgrouping" :useGrouping="false" :step="5" fluid>
-                        <template #incrementbuttonicon>
-                            <span class="pi pi-plus" />
-                        </template>
-                        <template #decrementbuttonicon>
-                            <span class="pi pi-minus" />
-                        </template>
-                    </InputNumber>
-                </div>
-
             </div>
         </div>
         <div>
-            <p class="font-semibold text-xl">Logo </p>
-            <sub-advpic v-model="event.thumbnail" />
-        </div>
-        <div>
-            <p class="mb-2 font-semibold text-xl">Event</p>
+            <p class="mb-2 font-semibold text-xl">Jelaskan Lowongan Kerja Anda</p>
             <div>
-                <Editor v-model="event.editor" editorStyle="height: 400px" />
+                <Editor v-model="loker.editor" editorStyle="height: 400px" />
             </div>
         </div>
         <div class="flex items-center gap-2">
-            <sub-yesnocomp @yes="onSubmit()" @no="onClear()" />
+            <sub-yesnocomp :submitLoading="buttonState.submit_loading" @yes="onSubmit()" @no="onClear()" />
         </div>
-        {{news}}
+        {{loker}}
     </div>
 </template>
 
 <script>
     export default {
-        name: 'News',
+        name: 'Loker',
         data() {
             return {
                 minDate: new Date(),
-                items: [],
-                dayUntillPost: 0,
-                dayUntillStop: 0,
-                event: {
+                buttonState: {
+                    submit_loading: false,
+                },
+                loker: {
                     editor: '',
                     title: '',
-                    thumbnail: '',
-                    author: 'Admin',
-                    cat: '',
+                    company: '',
                     location: '',
-                    start: '',
-                    max: 100,
+                    end: null,
+                    experience: 0,
+                    role: 'Paruh Waktu',
                 },
-                cat: [
-                    "Olahraga",
-                    "Pendidikan",
-                    "Kesehatan",
-                    "Teknologi",
-                    "Bisnis",
-                    "Hiburan",
-                ]
+                options: [
+                    "Paruh Waktu",
+                    "Purna Waktu",
+                    "Kontrak",
+                    "Magang",
+                    "Lainnya",
+                ],
+                company: [],
             }
         },
         computed: {
-            // 08/08/2024 - 08/23/2024
-            dayUntillPost() {
-                const date = new Date(this.event.start[0]);
+            dayUntillStop() {
+                const date = new Date(this.loker.end);
                 const now = new Date();
                 const diffTime = Math.abs(date - now);
                 const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
                 return diffDays;
             },
-            dayUntillStop() {
-                if (this.event.start[1] === null) return 0
-                const date = new Date(this.event.start[1]);
-                const now = new Date();
-                const diffTime = Math.abs(date - now);
-                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                return diffDays;
-            }
         },
         methods: {
             smallScreen() {
                 return window.innerWidth < 1024;
             },
             onSubmit() {
-                this.$toast.add({ severity: 'success', summary: 'Terupload', detail: 'Data event anda berhasil diupload', life: 3000 });
+                this.buttonState.submit_loading = true;
+
+                const fd = new FormData();
+                fd.append('judul', this.loker.title);
+                fd.append('id_perusahaan', this.loker.company.id_perusahaan);
+                fd.append('lokasi', this.loker.location);
+                fd.append('pengalaman_kerja', this.loker.experience);
+                fd.append('konten', this.loker.editor);
+                fd.append('tgl_selesai', this.loker.end.toISOString().split('T')[0]);
+                fd.append('role', this.loker.role);
+
+                axios.post('loker', fd)
+                    .then((res) => {
+                        this.$toast.add({ severity: 'success', summary: 'Berhasil', detail: 'Data loker anda berhasil ditambahkan', life: 3000 });
+                        this.onClear();
+                    })
+                    .catch((err) => {
+                        this.$toast.add({ severity: 'error', summary: 'Gagal', detail: 'Data loker anda gagal ditambahkan', life: 3000 });
+                    })
+                    .finally(() => {
+                        this.buttonState.submit_loading = false;
+                    });
+
+                this.buttonState.submit_loading = false;
             },
             onClear() {
-                this.$toast.add({ severity: 'success', summary: 'Dibersihkan', detail: 'Data event anda berhasil dibersihkan', life: 3000 });
-                this.event = {
+                this.$toast.add({ severity: 'success', summary: 'Dibersihkan', detail: 'Data loker anda berhasil dibersihkan', life: 3000 });
+                this.loker = {
                     editor: '',
                     title: '',
-                    thumbnail: '',
                     author: 'Admin',
                     cat: '',
                     max: 100,
                 }
             },
-
-            changeImg(img) {
-                this.news.thumbnail = img;
-            },
-
-            getCity() {
-                axios.get('https://staggingabsensi.labura.go.id/api-wilayah-indonesia/static/api/provinces.json').then((res) => {
-                    this.items = res.data.map(item => item.name)
-                    console.log(this.items)
-                }).catch((err) => {
-                    console.log(err)
-                })
+            fetchCompany() {
+                axios.get('loker/company')
+                    .then((res) => {
+                        this.company = res.data.data;
+                    })
+                    .catch((err) => {
+                        console.log(err);
+                    })
             }
         },
         mounted() {
-            this.getCity()
+            this.fetchCompany();
         }
     }
 </script>
