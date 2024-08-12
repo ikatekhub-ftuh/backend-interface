@@ -20,7 +20,7 @@
             this.result = res.data.message
           })
           .catch((err) => {
-            console.log(err)
+            // console.log(err)
             this.result = "you are not superadmin"
           })
       }

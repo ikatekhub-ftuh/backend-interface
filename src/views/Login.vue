@@ -49,11 +49,11 @@
             onSubmit() {
                 this.login(this.form).then((res) => {
                     if (res) {
-                        console.log(res)
+                        // console.log(res)
                         this.$router.push({ name: 'dashboard' });
                     }
                 }).catch((err) => {
-                    console.log(err)
+                    // console.log(err)
                 })
             }
         },
