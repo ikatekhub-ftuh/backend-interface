@@ -1,8 +1,4 @@
-<!-- 
-TODO singkronkan validasi input(maxfilesize) dengan backend
-
-FIXME thumbnail doesnt reach v-model
--->
+<!-- *DONE* -->
 
 <template>
     <div class="flex flex-col gap-5 main">
@@ -14,6 +10,7 @@ FIXME thumbnail doesnt reach v-model
                         v-tooltip.bottom="{ value: 'Masukkan judul berita anda di sini', showDelay: 1000, hideDelay: 300 }"
                         fluid />
                 </div>
+
                 <div>
                     <p class="mb-2 font-semibold text-xl">Penulis</p>
                     <InputText v-model="news.author" placeholder="Penulis Berita"
@@ -44,94 +41,103 @@ FIXME thumbnail doesnt reach v-model
             <sub-advpic ref="AdvPic" @changeImg="changeImg" />
         </div>
         <div>
+            <p class="mb-2 font-semibold text-xl">Deskripsi</p>
+            <Textarea v-model="news.desc" rows="5" cols="30" placeholder="Judul Berita"
+                v-tooltip.bottom="{ value: 'Masukkan deskripsi berita anda di sini', showDelay: 1000, hideDelay: 300 }"
+                fluid />
+        </div>
+        <div>
             <p class="mb-2 font-semibold text-xl">Artikel</p>
             <div>
                 <Editor v-model="news.editor" editorStyle="height: 400px" />
             </div>
         </div>
         <div class="flex items-center gap-2 ">
-            <sub-yesnocomp :submitloading="buttonState.submit_loading" @yes="onSubmit()" @no="onClear()" />
-        </div>
-        <div class="text-wrap max-w-full">
-            {{news}}
-            {{news.cat.id_kategori_berita}}
-            {{ cat }}
+            <sub-yesnocomp :off="computedVerification" :submitloading="buttonState.submit_loading" @yes="onSubmit()"
+                @no="onClear()" />
         </div>
     </div>
 </template>
 
 <script>
-    export default {
-        name: 'News',
-        data() {
-            return {
-                buttonState: {
-                    submit_loading: false,
-                },
-                news: {
-                    editor: '',
-                    title: '',
-                    thumbnail: null,
-                    author: 'Admin',
-                    cat: '',
-                },
-                cat: [
-                ]
-            }
-        },
-        methods: {
-            onSubmit() {
-                this.buttonState.submit_loading = true;
-
-                const fd = new FormData();
-                fd.append('gambar', this.news.thumbnail);
-                fd.append('judul', this.news.title);
-                fd.append('penulis', this.news.author);
-                fd.append('id_kategori_berita', this.news.cat.id_kategori_berita);
-                fd.append('konten', this.news.editor);
-
-                axios.post('berita', fd)
-                    .then((res) => {
-                        this.$refs.AdvPic.$refs.fileUpload.clear();
-                        this.onClear();
-                        this.$toast.add({ severity: 'success', summary: 'Terupload', detail: 'Data berita anda berhasil diupload', life: 3000 });
-                        this.buttonState.submit_loading = false;
-                    })
-                    .catch((err) => {
-                        this.$toast.add({ severity: 'error', summary: 'Gagal', detail: 'Data berita anda gagal diupload', life: 3000 });
-                        this.buttonState.submit_loading = false;
-                    })
+export default {
+    name: 'News',
+    data() {
+        return {
+            buttonState: {
+                submit_loading: false,
             },
-            onClear() {
-                this.$toast.add({ severity: 'info', summary: 'Dibersihkan', detail: 'Data berita anda berhasil dibersihkan', life: 3000 });
-                this.news = {
-                    editor: '',
-                    title: '',
-                    thumbnail: null,
-                    author: 'Admin',
-                    cat: '',
-                }
+            news: {
+                editor: '',
+                title: '',
+                thumbnail: null,
+                author: 'Admin',
+                cat: '',
+                desc: ''
             },
-            changeImg(img) {
-                this.news.thumbnail = img;
-                console.log(this.news.thumbnail);
-            },
-            
-            fetchCat() {
-                axios.get('berita/kategori')
-                    .then((res) => {
-                        this.cat = res.data.data;
-                    })
-                    .catch((err) => {
-                        console.log(err);
-                    })
-            }
-        },
-        mounted() {
-            this.fetchCat();
+            cat: [
+            ]
         }
+    },
+    computed: {
+        computedVerification() {
+            return Object.values(this.news).some((val) => val === null || val === undefined || val === '' || val === [] || val === {});
+        }
+    },
+    methods: {
+        onSubmit() {
+            this.buttonState.submit_loading = true;
+
+            const fd = new FormData();
+            fd.append('gambar', this.news.thumbnail);
+            fd.append('judul', this.news.title);
+            fd.append('penulis', this.news.author);
+            fd.append('id_kategori_berita', this.news.cat.id_kategori_berita);
+            fd.append('konten', this.news.editor);
+            fd.append('deskripsi', this.news.desc);
+
+            axios.post('berita', fd)
+                .then((res) => {
+                    this.$refs.AdvPic.$refs.fileUpload.clear();
+                    this.onClear();
+                    this.$toast.add({ severity: 'success', summary: 'Terupload', detail: 'Data berita anda berhasil diupload', life: 3000 });
+                    this.buttonState.submit_loading = false;
+                })
+                .catch((err) => {
+                    this.$toast.add({ severity: 'error', summary: 'Gagal', detail: 'Data berita anda gagal diupload', life: 3000 });
+                    this.buttonState.submit_loading = false;
+                })
+        },
+        onClear() {
+            this.$toast.add({ severity: 'info', summary: 'Dibersihkan', detail: 'Data berita anda berhasil dibersihkan', life: 3000 });
+            this.news = {
+                editor: '',
+                title: '',
+                thumbnail: null,
+                author: 'Admin',
+                cat: '',
+                desc: ''
+            }
+        },
+        changeImg(img) {
+            this.news.thumbnail = img;
+            console.log(this.news.thumbnail);
+        },
+
+        fetchCat() {
+            axios.get('berita/kategori')
+                .then((res) => {
+                    this.cat = res.data.data;
+                })
+                .catch((err) => {
+                    console.log(err);
+                })
+        }
+    },
+    mounted() {
+        this.fetchCat();
     }
+}
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>

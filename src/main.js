@@ -12,8 +12,8 @@ import Aura from '@primevue/themes/aura'
 
 import Qrcode from 'qrcode.vue'
 
-// import store from './store'
-// import './store/subscriber'
+import store from './store'
+import './store/subscriber'
 
 import axios from 'axios'
 // axios.defaults.baseURL = 'http://127.0.0.1:8000/api/'
@@ -25,26 +25,27 @@ axios.defaults.headers.common = {
     ...config.headers,
 }
 
-// store.dispatch('auth/attempt', localStorage.getItem('token')).then(() => {
+store.dispatch('auth/attempt', localStorage.getItem('token')).then(() => {
 
-createApp(App)
-    .use(router)
-    .use(PrimeVue, {
-        theme: {
-            preset: Aura,
-            options: {
-                prefix: 'p',
-                darkModeSelector: '.dark',
-                cssLayer: {
-                    name: 'primevue',
-                    order: 'tailwind-base, primevue, tailwind-utilities'
+    createApp(App)
+        .use(router)
+        .use(PrimeVue, {
+            theme: {
+                preset: Aura,
+                options: {
+                    prefix: 'p',
+                    darkModeSelector: '.dark',
+                    cssLayer: {
+                        name: 'primevue',
+                        order: 'tailwind-base, primevue, tailwind-utilities'
+                    }
                 }
             }
-        }})
-    .use(ConfirmationService)
-    .use(ToastService)
-    // .use(store)
-    .component('qrcode', Qrcode)
-    .mount('#app')
+        })
+        .use(ConfirmationService)
+        .use(ToastService)
+        .use(store)
+        .component('qrcode', Qrcode)
+        .mount('#app')
 
-// })
+})

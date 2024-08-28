@@ -1,8 +1,4 @@
-<!-- 
-TODO singkronkan validasi input(maxfilesize) dengan backend
-
-FIXME thumbnail doesnt reach v-model
--->
+<!-- *DONE* -->
 
 <template>
     <div class="flex flex-col gap-5 main">
@@ -21,62 +17,64 @@ FIXME thumbnail doesnt reach v-model
             <sub-advpic ref="AdvPic" @changeImg="changeImg" />
         </div>
         <div class="flex items-center gap-2 ">
-            <sub-yesnocomp :submitloading="buttonState.submit_loading" @yes="onSubmit()" @no="onClear()" />
-        </div>
-        <div class="text-wrap max-w-full">
-            {{company}}
+            <sub-yesnocomp :off="computedVerification" :submitloading="buttonState.submit_loading" @yes="onSubmit()"
+                @no="onClear()" />
         </div>
     </div>
 </template>
 
 <script>
-    export default {
-        name: 'News',
-        data() {
-            return {
-                buttonState: {
-                    submit_loading: false,
-                },
-                company: {
-                    name: '',
-                    thumbnail: null,
-                },
-            }
-        },
-        methods: {
-            onSubmit() {
-                this.buttonState.submit_loading = true;
-
-                const fd = new FormData();
-                fd.append('nama_perusahaan', this.company.name);
-                fd.append('logo', this.company.thumbnail);
-
-                axios.post('loker/company', fd)
-                    .then((res) => {
-                        this.$refs.AdvPic.$refs.fileUpload.clear();
-                        this.onClear();
-                        this.$toast.add({ severity: 'success', summary: 'Terupload', detail: 'Data berita anda berhasil diupload', life: 3000 });
-                        this.buttonState.submit_loading = false;
-                    })
-                    .catch((err) => {
-                        this.$toast.add({ severity: 'error', summary: 'Gagal', detail: 'Data berita anda gagal diupload', life: 3000 });
-                        this.buttonState.submit_loading = false;
-                    })
+export default {
+    name: 'News',
+    data() {
+        return {
+            buttonState: {
+                submit_loading: false,
             },
-            onClear() {
-                this.$toast.add({ severity: 'info', summary: 'Dibersihkan', detail: 'Data berita anda berhasil dibersihkan', life: 3000 });
-                this.news = {
-                    name: '',
-                    thumbnail: null,
-                }
+            company: {
+                name: '',
+                thumbnail: null,
             },
-            changeImg(img) {
-                this.company.thumbnail = img;
-                console.log(this.company.thumbnail);
-            }
+        }
+    },
+    computed: {
+        computedVerification() {
+            return Object.values(this.company).some((val) => val === null || val === undefined || val === '' || val === [] || val === {});
+        }
+    },
+    methods: {
+        onSubmit() {
+            this.buttonState.submit_loading = true;
+
+            const fd = new FormData();
+            fd.append('nama_perusahaan', this.company.name);
+            fd.append('logo', this.company.thumbnail);
+
+            axios.post('loker/perusahaan', fd)
+                .then((res) => {
+                    this.$refs.AdvPic.$refs.fileUpload.clear();
+                    this.onClear();
+                    this.$toast.add({ severity: 'success', summary: 'Terupload', detail: 'Data berita anda berhasil diupload', life: 3000 });
+                    this.buttonState.submit_loading = false;
+                })
+                .catch((err) => {
+                    this.$toast.add({ severity: 'error', summary: 'Gagal', detail: 'Data berita anda gagal diupload', life: 3000 });
+                    this.buttonState.submit_loading = false;
+                })
         },
-    }
+        onClear() {
+            this.company = {
+                name: '',
+                thumbnail: null,
+            }
+            this.$toast.add({ severity: 'info', summary: 'Dibersihkan', detail: 'Data berita anda berhasil dibersihkan', life: 3000 });
+        },
+        changeImg(img) {
+            this.company.thumbnail = img;
+            console.log(this.company.thumbnail);
+        }
+    },
+}
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>

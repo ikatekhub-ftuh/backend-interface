@@ -1,4 +1,4 @@
-<!-- 
+<!--
 TODO date nya bikin range (start - end)
 -->
 
@@ -32,7 +32,7 @@ TODO date nya bikin range (start - end)
                 <div>
                     <p class="mb-2 font-semibold text-xl">Kuota</p>
                     <InputNumber showButtons buttonLayout="horizontal" :min="1" v-model="event.max"
-                        inputId="withoutgrouping" :useGrouping="false" :step="5" fluid>
+                        inputId="withoutgrouping" :useGrouping="false" :step="25" fluid>
                         <template #incrementbuttonicon>
                             <span class="pi pi-plus" />
                         </template>
@@ -54,95 +54,89 @@ TODO date nya bikin range (start - end)
             </div>
         </div>
         <div class="flex items-center gap-2">
-            <sub-yesnocomp :submitloading="buttonState.submit_loading" @yes="onSubmit()" @no="onClear()" />
+            <sub-yesnocomp :off="computedVerification" :submitloading="buttonState.submit_loading" @yes="onSubmit()"
+                @no="onClear()" />
         </div>
-        {{event}}
+        {{ event }}
     </div>
 </template>
 
 <script>
-    export default {
-        data() {
-            return {
-                buttonState: {
-                    submit_loading: false,
-                },
-                minDate: new Date(),
-                event: {
-                    editor: '',
-                    title: '',
-                    thumbnail: null,
-                    author: 'Admin',
-                    cat: '',
-                    location: '',
-                    start: '',
-                    max: 100,
-                },
-                cat: [
-                    "Olahraga",
-                    "Pendidikan",
-                    "Kesehatan",
-                    "Teknologi",
-                    "Bisnis",
-                    "Hiburan",
-                ]
-            }
+export default {
+    data() {
+        return {
+            buttonState: {
+                submit_loading: false,
+            },
+            minDate: new Date(),
+            event: {
+                editor: '',
+                title: '',
+                thumbnail: null,
+                author: 'Admin',
+                location: '',
+                start: '',
+                max: 1000,
+            },
+        }
+    },
+    computed: {
+        dayUntillEvent() {
+            const date = new Date(this.event.start);
+            const now = new Date();
+            const diffTime = Math.abs(date - now);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            return diffDays;
         },
-        computed: {
-            dayUntillEvent() {
-                const date = new Date(this.event.start);
-                const now = new Date();
-                const diffTime = Math.abs(date - now);
-                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                return diffDays;
-            }
+        computedVerification() {
+            return Object.values(this.event).some((val) => val === null || val === undefined || val === '' || val === [] || val === {});
+        }
+    },
+    methods: {
+        smallScreen() {
+            return window.innerWidth < 1024;
         },
-        methods: {
-            smallScreen() {
-                return window.innerWidth < 1024;
-            },
-            onSubmit() {
-                this.buttonState.submit_loading = true;
+        onSubmit() {
+            this.buttonState.submit_loading = true;
 
-                const fd = new FormData();
-                fd.append('judul', this.event.title);
-                fd.append('gambar', this.event.thumbnail);
-                fd.append('penyelenggara', this.event.author);
-                fd.append('lokasi_event', this.event.location);
-                fd.append('tgl_event', this.event.start.toISOString().split('T')[0]);
-                fd.append('kuota', this.event.max);
-                fd.append('konten', this.event.editor);
+            const fd = new FormData();
+            fd.append('judul', this.event.title);
+            fd.append('gambar', this.event.thumbnail);
+            fd.append('penyelenggara', this.event.author);
+            fd.append('lokasi_event', this.event.location);
+            fd.append('tgl_event', this.event.start.toISOString().split('T')[0]);
+            fd.append('kuota', this.event.max);
+            fd.append('konten', this.event.editor);
 
-                axios.post('event', fd)
-                    .then((res) => {
-                        this.$refs.AdvPic.$refs.fileUpload.clear();
-                        this.buttonState.submit_loading = false;
-                        this.onClear();
-                        this.$toast.add({ severity: 'success', summary: 'Terupload', detail: 'Data event anda berhasil diupload', life: 3000 });
-                    })
-                    .catch((err) => {
-                        this.$toast.add({ severity: 'error', summary: 'Gagal', detail: 'Event gagal ditambahkan', life: 3000 });
-                        this.buttonState.submit_loading = false;
-                    })
-            },
-            changeImg(img) {
-                this.event.thumbnail = img;
-                console.log(this.event.thumbnail);
-            },
-            onClear() {
-                this.event = {
-                    editor: '',
-                    title: '',
-                    thumbnail: '',
-                    author: 'Admin',
-                    cat: '',
-                    max: 100,
-                }
-                this.$toast.add({ severity: 'success', summary: 'Dibersihkan', detail: 'Data event anda berhasil dibersihkan', life: 3000 });
+            axios.post('event', fd)
+                .then((res) => {
+                    this.$refs.AdvPic.$refs.fileUpload.clear();
+                    this.buttonState.submit_loading = false;
+                    this.onClear();
+                    this.$toast.add({ severity: 'success', summary: 'Terupload', detail: 'Data event anda berhasil diupload', life: 3000 });
+                })
+                .catch((err) => {
+                    this.$toast.add({ severity: 'error', summary: 'Gagal', detail: 'Event gagal ditambahkan', life: 3000 });
+                    this.buttonState.submit_loading = false;
+                })
+        },
+        changeImg(img) {
+            this.event.thumbnail = img;
+            console.log(this.event.thumbnail);
+        },
+        onClear() {
+            this.event = {
+                editor: '',
+                title: '',
+                thumbnail: '',
+                author: 'Admin',
+                cat: '',
+                max: 100,
             }
+            this.$toast.add({ severity: 'success', summary: 'Dibersihkan', detail: 'Data event anda berhasil dibersihkan', life: 3000 });
         }
     }
+}
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>

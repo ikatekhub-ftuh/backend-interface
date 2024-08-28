@@ -1,4 +1,5 @@
 import { createWebHistory, createRouter } from 'vue-router'
+import store from '../store'
 
 const routes = [
     {
@@ -12,7 +13,6 @@ const routes = [
         component: () => import('../views/Login.vue')
     },
     {
-        path: '/shell/db', name: 'dashboardshell',
         component: () => import('../shell/DashboardShell.vue'),
         meta: { requiresAuth: true },
         children: [
@@ -47,6 +47,11 @@ const routes = [
                 name: 'input perusahaan',
                 component: () => import('../views/subview_dashboard/input/Perusahaan.vue'),
             },
+            {
+                path: '/data/news',
+                name: 'data news',
+                component: () => import('../views/subview_dashboard/data/News.vue')
+            },
         ]
     },
 ]
@@ -56,12 +61,14 @@ const router = createRouter({
     routes,
 })
 
-// router.beforeEach((to, from, next) => {
-//     if (to.meta.requiresAuth && !localStorage.getItem('token')) {
-//         next({ name: 'login' })
-//     } else {
-//         next()
-//     }
-// })
+router.beforeEach((to, from, next) => {
+    if (to.meta.requiresAuth && !store.getters['auth/auth']) {
+        return next({ name: 'login' })
+    }
+    if (to.meta.requiresAuth && !store.getters['auth/role']) {
+        return next({ name: 'login' })
+    }
+    next()
+})
 
 export default router

@@ -1,4 +1,4 @@
-<!-- 
+<!--
 TODO select location mungkin dikasih input biasa?
 -->
 
@@ -15,7 +15,8 @@ TODO select location mungkin dikasih input biasa?
                 {{ loker.company }}
                 <div>
                     <p class="mb-2 font-semibold text-xl">Perusahaan</p>
-                    <Select v-model="loker.company" filter optionLabel="nama_perusahaan" :options="company" placeholder="Nama perusahaan" class="w-full md:w-56">
+                    <Select v-model="loker.company" filter optionLabel="nama_perusahaan" :options="company"
+                        placeholder="Nama perusahaan" class="w-full md:w-56">
                         <template #value="slotProps">
                             <div v-if="slotProps.value" class="flex items-center">
                                 <div>{{ slotProps.value.nama_perusahaan }}</div>
@@ -55,7 +56,7 @@ TODO select location mungkin dikasih input biasa?
                 </div>
                 <div>
                     <p class="mb-2 font-semibold text-xl">Jenis Pekerjaan</p>
-                    <Select v-model="loker.role" :options="options"  placeholder="Kategori" class="w-full md:w-56">
+                    <Select v-model="loker.role" :options="options" placeholder="Kategori" class="w-full md:w-56">
                         <template #value="slotProps">
                             <div v-if="slotProps.value" class="flex items-center">
                                 <div>{{ slotProps.value }}</div>
@@ -81,102 +82,101 @@ TODO select location mungkin dikasih input biasa?
         <div class="flex items-center gap-2">
             <sub-yesnocomp :submitLoading="buttonState.submit_loading" @yes="onSubmit()" @no="onClear()" />
         </div>
-        {{loker}}
+        {{ loker }}
     </div>
 </template>
 
 <script>
-    export default {
-        name: 'Loker',
-        data() {
-            return {
-                minDate: new Date(),
-                buttonState: {
-                    submit_loading: false,
-                },
-                loker: {
-                    editor: '',
-                    title: '',
-                    company: '',
-                    location: '',
-                    end: null,
-                    experience: 0,
-                    role: 'Paruh Waktu',
-                },
-                options: [
-                    "Paruh Waktu",
-                    "Purna Waktu",
-                    "Kontrak",
-                    "Magang",
-                    "Lainnya",
-                ],
-                company: [],
-            }
-        },
-        computed: {
-            dayUntillStop() {
-                const date = new Date(this.loker.end);
-                const now = new Date();
-                const diffTime = Math.abs(date - now);
-                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                return diffDays;
+export default {
+    name: 'Loker',
+    data() {
+        return {
+            minDate: new Date(),
+            buttonState: {
+                submit_loading: false,
             },
-        },
-        methods: {
-            smallScreen() {
-                return window.innerWidth < 1024;
+            loker: {
+                editor: '',
+                title: '',
+                company: '',
+                location: '',
+                end: null,
+                experience: 0,
+                role: 'Paruh Waktu',
             },
-            onSubmit() {
-                this.buttonState.submit_loading = true;
-
-                const fd = new FormData();
-                fd.append('judul', this.loker.title);
-                fd.append('id_perusahaan', this.loker.company.id_perusahaan);
-                fd.append('lokasi', this.loker.location);
-                fd.append('pengalaman_kerja', this.loker.experience);
-                fd.append('konten', this.loker.editor);
-                fd.append('tgl_selesai', this.loker.end.toISOString().split('T')[0]);
-                fd.append('role', this.loker.role);
-
-                axios.post('loker', fd)
-                    .then((res) => {
-                        this.$toast.add({ severity: 'success', summary: 'Berhasil', detail: 'Data loker anda berhasil ditambahkan', life: 3000 });
-                        this.onClear();
-                    })
-                    .catch((err) => {
-                        this.$toast.add({ severity: 'error', summary: 'Gagal', detail: 'Data loker anda gagal ditambahkan', life: 3000 });
-                    })
-                    .finally(() => {
-                        this.buttonState.submit_loading = false;
-                    });
-
-                this.buttonState.submit_loading = false;
-            },
-            onClear() {
-                this.$toast.add({ severity: 'success', summary: 'Dibersihkan', detail: 'Data loker anda berhasil dibersihkan', life: 3000 });
-                this.loker = {
-                    editor: '',
-                    title: '',
-                    author: 'Admin',
-                    cat: '',
-                    max: 100,
-                }
-            },
-            fetchCompany() {
-                axios.get('loker/company')
-                    .then((res) => {
-                        this.company = res.data.data;
-                    })
-                    .catch((err) => {
-                        console.log(err);
-                    })
-            }
-        },
-        mounted() {
-            this.fetchCompany();
+            options: [
+                "Paruh Waktu",
+                "Purna Waktu",
+                "Kontrak",
+                "Magang",
+                "Lainnya",
+            ],
+            company: [],
         }
+    },
+    computed: {
+        dayUntillStop() {
+            const date = new Date(this.loker.end);
+            const now = new Date();
+            const diffTime = Math.abs(date - now);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            return diffDays;
+        },
+    },
+    methods: {
+        smallScreen() {
+            return window.innerWidth < 1024;
+        },
+        onSubmit() {
+            this.buttonState.submit_loading = true;
+
+            const fd = new FormData();
+            fd.append('judul', this.loker.title);
+            fd.append('id_perusahaan', this.loker.company.id_perusahaan);
+            fd.append('lokasi', this.loker.location);
+            fd.append('pengalaman_kerja', this.loker.experience);
+            fd.append('konten', this.loker.editor);
+            fd.append('tgl_selesai', this.loker.end.toISOString().split('T')[0]);
+            fd.append('role', this.loker.role);
+
+            axios.post('loker', fd)
+                .then((res) => {
+                    this.$toast.add({ severity: 'success', summary: 'Berhasil', detail: 'Data loker anda berhasil ditambahkan', life: 3000 });
+                    this.onClear();
+                })
+                .catch((err) => {
+                    this.$toast.add({ severity: 'error', summary: 'Gagal', detail: 'Data loker anda gagal ditambahkan', life: 3000 });
+                })
+                .finally(() => {
+                    this.buttonState.submit_loading = false;
+                });
+
+            this.buttonState.submit_loading = false;
+        },
+        onClear() {
+            this.$toast.add({ severity: 'success', summary: 'Dibersihkan', detail: 'Data loker anda berhasil dibersihkan', life: 3000 });
+            this.loker = {
+                editor: '',
+                title: '',
+                author: 'Admin',
+                cat: '',
+                max: 100,
+            }
+        },
+        fetchCompany() {
+            axios.get('loker/company')
+                .then((res) => {
+                    this.company = res.data.data;
+                })
+                .catch((err) => {
+                    console.log(err);
+                })
+        }
+    },
+    mounted() {
+        this.fetchCompany();
     }
+}
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>

@@ -3,13 +3,7 @@
 }
 
 .hiddenscrollbar {
-
-    /* noscrollbar */
-    ::-webkit-scrollbar {
-        scrollbar-width: none !important;
-        width: 0px !important;
-        display: none !important;
-    }
+    scrollbar-width: none !important;
 }
 
 img {

@@ -1,8 +1,9 @@
 <!-- TODO fix the damn file uploader, atau ganti saja sama yang lain deh apakah ini sumpahka -->
 
 <template>
-    <FileUpload name="thumbnail" :multiple="false" ref="fileUpload" @select="handleFileChange" @remove="handleFileChange"
-        accept="image/png,image/jpeg,image/jpg" :fileLimit="1" :maxFileSize="2000000">
+    <FileUpload name="thumbnail" :multiple="false" ref="fileUpload" @select="handleFileChange(false, $event)"
+        @remove="handleFileChange(true, $event)" accept="image/png,image/jpeg,image/jpg" :fileLimit="1"
+        :maxFileSize="2000000">
         <template #header="{ chooseCallback, clearCallback, files }">
             <div class="flex flex-wrap flex-1 justify-between items-center gap-4">
                 <div class="flex gap-2">
@@ -22,20 +23,21 @@
 </template>
 
 <script>
-    export default {
-        name: 'AdvPic',
-        // emits: ['changeImg', 'onParentClear'],
-        methods: {
-            handleFileChange(e) {
+export default {
+    name: 'AdvPic',
+    methods: {
+        handleFileChange(remove = false, e) {
+            if (remove) {
+                this.$emit('changeImg', null)
+                console.log('remove')
+            } else {
                 const file = new File([e.files[0]], e.files[0].name, { type: e.files[0].type });
                 this.$emit('changeImg', file);
-            },
-            // editData() {
-            //     this.$refs.fileUpload.clear();
-            // },
+                console.log('add')
+            }
         },
-    }
+    },
+}
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>
