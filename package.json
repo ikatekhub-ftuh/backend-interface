@@ -10,8 +10,11 @@
   },
   "dependencies": {
     "@primevue/themes": "^4.0.4",
+    "@vueuse/core": "^11.0.3",
+    "@vueuse/integrations": "^11.0.3",
     "axios": "^1.7.3",
     "crypto-js": "^4.2.0",
+    "idb-keyval": "^6.2.1",
     "primeicons": "^7.0.0",
     "primevue": "^4.0.4",
     "qrcode.vue": "^3.4.1",

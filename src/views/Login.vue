@@ -1,10 +1,5 @@
 <template>
     <div class="flex justify-center items-center page">
-        <!-- debug -->
-        <div class="top-0 absolute">
-            {{ form }}
-        </div>
-        <!-- main -->
         <form @submit.prevent="onSubmit()" class="card">
             <div>
                 <p class="text-heading">Masuk</p>
@@ -25,7 +20,7 @@
                 </InputGroup>
             </div>
             <div>
-                <Button type="submit" label="Masuk" class="w-full" />
+                <Button :loading="loading" type="submit" label="Masuk" class="w-full" />
             </div>
         </form>
     </div>
@@ -40,6 +35,7 @@ export default {
                 email: '',
                 password: '',
             },
+            loading: false,
         }
     },
     methods: {
@@ -47,13 +43,17 @@ export default {
             login: 'auth/login'
         }),
         onSubmit() {
+            this.loading = true;
             this.login(this.form).then((res) => {
                 if (res) {
-                    console.log(res)
+                    this.$toast.add({ severity: 'success', summary: 'Success', detail: 'Login success', life: 3000 });
                     this.$router.push({ name: 'dashboard' });
                 }
             }).catch((err) => {
-                console.log(err)
+                const errorMessage = err.response.data.message.replace('\\n', '\n');
+                this.$toast.add({ severity: 'error', summary: 'Error', detail: errorMessage, life: 3000 });
+            }).finally(() => {
+                this.loading = false;
             })
         }
     },
@@ -67,6 +67,5 @@ export default {
     padding: 2.5rem 2rem;
     border-radius: 16px;
     background-color: rgb(255, 255, 255);
-    box-shadow: 2px 5px 10px 0 rgba(0, 0, 0, 0.1);
 }
 </style>

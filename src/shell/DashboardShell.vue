@@ -133,42 +133,26 @@ export default {
         }
     },
     computed: {
-        // ...mapGetters({
-        //     role: 'auth/role'
-        // }),
-        // filter sidebar item based on user role, if item has onlysudo property, it will be removed if user is not sudo. instead of return, it will be assigned to sidebar_item
+        ...mapGetters({
+            role: 'auth/role'
+        }),
     },
     methods: {
-        // ...mapActions({
-        //     logout: 'auth/logout'
-        // }),
+        ...mapActions({
+            logout: 'auth/logout'
+        }),
         toggleSidebar() {
             this.visibleSidebar = !this.visibleSidebar;
         },
-        // filterItem() {
-        //     this.sidebar_item = this.sidebar_item.filter((item) => {
-        //         // if item has onlysudo property, it will be removed if user is not sudo
-        //         if (item.onlysu && this.role !== 'superadmin') {
-        //             return false;
-        //         }
-        //         return true;
-        //     });
-        // },
         onLogout() {
             this.logout().then(() => {
+                console.log('Logged out');
                 this.$router.push({ name: 'login' });
+            }).catch((err) => {
+                console.log(err);
             });
         }
     },
-    // wait for role to be fetched before filtering sidebar item
-    // watch: {
-    //     role: {
-    //         immediate: true,
-    //         handler() {
-    //             this.filterItem();
-    //         }
-    //     }
-    // }
 }
 </script>
 

@@ -6,27 +6,28 @@ import { PrimeVueResolver } from '@primevue/auto-import-resolver'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [
-    vue(),
-    Components({
-      include: [/\.vue$/, /\.vue\?vue/],
-      dirs: ['./src/components'],
-      resolvers: [PrimeVueResolver()],
-      directoryAsNamespace: true,
-    }),
-    AutoImport({
-      include: [
-        /\.vue$/,
-        /\.vue\?vue/, // .vue
-      ],
-      imports: [
-        'vue',
-        'vue-router',
-        {
-          'axios': [['default', 'axios']],
-          'vuex': ['mapState', 'mapGetters', 'mapMutations', 'mapActions'],
-        }
-      ]
-    })
-  ],
+    plugins: [
+        vue(),
+        Components({
+            include: [/\.vue$/, /\.vue\?vue/],
+            dirs: ['./src/components'],
+            resolvers: [PrimeVueResolver()],
+            directoryAsNamespace: true,
+        }),
+        AutoImport({
+            include: [
+                /\.vue$/,
+                /\.vue\?vue/, // .vue
+            ],
+            imports: [
+                'vue',
+                'vue-router',
+                {
+                    'axios': [['default', 'axios']],
+                    'vuex': ['mapState', 'mapGetters', 'mapMutations', 'mapActions'],
+                    '@vueuse/integrations/useIDBKeyval': ['useIDBKeyval'],
+                }
+            ],
+        })
+    ],
 })

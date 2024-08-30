@@ -26,7 +26,6 @@ axios.defaults.headers.common = {
 }
 
 store.dispatch('auth/attempt', localStorage.getItem('token')).then(() => {
-
     createApp(App)
         .use(router)
         .use(PrimeVue, {

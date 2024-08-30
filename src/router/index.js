@@ -65,9 +65,9 @@ router.beforeEach((to, from, next) => {
     if (to.meta.requiresAuth && !store.getters['auth/auth']) {
         return next({ name: 'login' })
     }
-    if (to.meta.requiresAuth && !store.getters['auth/role']) {
-        return next({ name: 'login' })
-    }
+    // if (to.meta.requiresAuth && !store.getters['auth/role']) {
+    //     return next({ name: 'login' })
+    // }
     next()
 })
 

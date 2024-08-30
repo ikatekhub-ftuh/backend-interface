@@ -13,14 +13,13 @@ export default {
     state: {
         token: null,
         user: null,
-        admin: null,
     },
     getters: {
         auth(state) {
             return state.token && state.user
         },
-        role(state) {
-            return state.admin
+        admin(state) {
+            return state.user.is_admin
         }
     },
     mutations: {
@@ -30,7 +29,7 @@ export default {
         SETUSER(state, data) {
             state.user = data
         },
-        SETROLE(state, data) {
+        SETADMIN(state, data) {
             state.admin = data
         }
     },
@@ -48,20 +47,17 @@ export default {
                 return
             }
             try {
-                let response = await axios.get('user')
-                commit('SETUSER', response.data.data.user)
-                commit('SETROLE', response.data.data.isAdmin)
+                let response = await axios.get('user?admincheck=true')
+                commit('SETUSER', response.data.data)
             } catch (error) {
                 commit('SETTOKEN', null)
                 commit('SETUSER', null)
-                commit('SETROLE', null)
             }
         },
         async logout({ commit }) {
-            await axios.post('logout')
+            await axios.post('auth/logout')
             commit('SETTOKEN', null)
             commit('SETUSER', null)
-            commit('SETROLE', null)
         }
     },
 }
