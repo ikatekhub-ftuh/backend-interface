@@ -1,5 +1,3 @@
-use IndexedDB ISNTEAD
-
 <template>
     <div class="flex flex-col gap-5 main">
         <Message severity="info" icon="pi pi-database" v-if="cached" closable>
@@ -39,6 +37,12 @@ use IndexedDB ISNTEAD
             <Column field="id_berita" sortable header="ID"></Column>
             <Column field="judul" sortable header="Judul"></Column>
             <Column field="penulis" sortable header="Penulis"></Column>
+            <Column field="total_like" sortable header="Like">
+                <template #body="slotProps">
+                    <span class="pi pi-thumbs-up mr-2"></span>
+                    <span class="text-ellipsis text-nowrap"> {{ slotProps.data.total_like }} </span>
+                </template>
+            </Column>
             <Column field="kategori.kategori" sortable header="Kategori">
                 <template #body="slotProps">
                     <span class="category text-ellipsis text-nowrap"> {{ slotProps.data.kategori.kategori }} </span>
@@ -47,14 +51,15 @@ use IndexedDB ISNTEAD
             <Column sortable header="Action">
                 <template #body="slotProps">
                     <div class="flex flex-row gap-1">
-                        <Button :size="size.value" @click="openSlug(slotProps.data.slug)" severity="danger">
+                        <Button :size="size.value" @click="openSlug('delete', slotProps.data.id_berita)"
+                            severity="danger">
                             <span class="pi pi-trash"></span>
                         </Button>
-                        <Button :size="size.value" @click="openSlug(slotProps.data.slug)" severity="info">
+                        <Button :size="size.value" @click="openSlug('view', slotProps.data.id_berita)" severity="info">
                             <span class="pi pi-eye"></span>
                         </Button>
-                        <Button :size="size.value" @click="openSlug(slotProps.data.slug)" severity="warn">
-                            <span class="pi pi-eye"></span>
+                        <Button :size="size.value" @click="openSlug('edit', slotProps.data.id_berita)" severity="warn">
+                            <span class="pi pi-pencil"></span>
                         </Button>
                     </div>
                 </template>
@@ -68,12 +73,44 @@ use IndexedDB ISNTEAD
         </DataTable>
 
     </div>
+    <Dialog v-if="modalData.news" v-model:visible="modal.viewVisible" modal maximizable :header="modalData.header"
+        @hide="() => { modalData = {} }" :style="{ width: '50vw' }"
+        :breakpoints="{ '1199px': '80vw', '575px': '100vw' }">
+        <div class="fluid *:mb-2">
+            <div>
+                <Image :src="this.default.image + modalData.news.gambar" :alt="`image of ${modalData.news.judul}`"
+                    class="w-full h-auto max-h-[300px]" preview />
+            </div>
+            <div>
+                <Tag :value="modalData.news.kategori.kategori" severity="info" />
+            </div>
+            <div>
+                <h2 class="font-semibold text-2xl">{{ modalData.news.judul }}</h2>
+            </div>
+            <div>
+                <span class="font-medium">By {{ modalData.news.penulis }}</span>
+            </div>
+            <div>
+                <span class="pi pi-thumbs-up mr-2"></span>{{ modalData.news.total_like }} Likes
+            </div>
+            <div>
+                <span class="pi pi-calendar mr-2"></span>{{ formattedDate(modalData.news.created_at) }}
+            </div>
+            <Panel header="Deskripsi" toggleable>
+                <div class="prose max-w-max overflow-y-scroll max-h-[400px]" v-html="modalData.news.deskripsi"></div>
+            </Panel>
+            <Panel header="Konten" toggleable>
+                <div class="prose max-w-max overflow-y-scroll max-h-[700px]" v-html="modalData.news.konten"></div>
+            </Panel>
+        </div>
+    </Dialog>
 </template>
 
 <script>
 import { FilterMatchMode } from '@primevue/core/api';
 
 export default {
+    inject: ['default'],
     data() {
         const KEY = 'news';
         const stateObject = useIDBKeyval(`${KEY}-object`, {
@@ -102,8 +139,21 @@ export default {
             },
             selectedProduct: null,
             cacheDuration: 360000,
-            cached: false
+            cached: false,
+            modal: {
+                viewVisible: false,
+            },
+            modalData: {
+            },
         };
+    },
+    computed: {
+        formattedDate() {
+            return (dateString) => {
+                const options = { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+                return new Date(dateString).toLocaleDateString('id-ID', options);
+            };
+        },
     },
     methods: {
         debug() {
@@ -152,8 +202,22 @@ export default {
                 this.$toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to fetch data', life: 3000 });
             })
         },
-        openSlug(x) {
-            alert(x)
+        openSlug(context, id) {
+            switch (context) {
+                case 'view':
+                    axios.get('berita/id/' + id)
+                        .then((res) => {
+                            this.modalData.news = res.data.data;
+                            this.modalData.header = 'View News';
+                            this.modal.viewVisible = true;
+                        })
+                        .catch((err) => {
+                            console.log(err);
+                        });
+                    break;
+                default:
+                    break;
+            }
         },
         toggleSelection() {
             this.selectionMode = !this.selectionMode;
@@ -217,5 +281,6 @@ export default {
     font-weight: 500;
     text-transform: capitalize;
     display: inline-block;
+    cursor: default;
 }
 </style>

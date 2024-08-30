@@ -52,6 +52,11 @@ const routes = [
                 name: 'data news',
                 component: () => import('../views/subview_dashboard/data/News.vue')
             },
+            {
+                path: '/data/view/:id',
+                name: 'view data',
+                component: () => import('../views/subview_dashboard/data/View.vue')
+            }
         ]
     },
 ]
