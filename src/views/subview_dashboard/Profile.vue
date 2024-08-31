@@ -1,5 +1,6 @@
 <!-- !TODO: -->
 <!-- *Show Alumni Data if Exist -->
+<!-- *Allow changing email without changing pw -->
 
 <template>
     <div class="card">
