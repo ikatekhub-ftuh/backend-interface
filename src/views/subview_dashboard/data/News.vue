@@ -1,6 +1,5 @@
 <template>
     <div class="flex flex-col gap-5 main">
-
         <Message severity="info" icon="pi pi-database" v-if="cached" closable>
             <span>
                 Menggunakan data cache.
@@ -12,7 +11,7 @@
                 Terakhir diambil pada {{ getLastFetchTime() }}
             </span>
         </Message>
-        <DataTable removableSort v-model:filters="filters" ref="dt" v-model:selection="selectedProduct" :value="news"
+        <DataTable removableSort v-model:filters="filters" ref="dt" v-model:selection="selectedItem" :value="news"
             paginator :rows="10" :rowsPerPageOptions="[5, 10, 15]" :size="size.value" dataKey="id_berita"
             :globalFilterFields="['judul', 'penulis', 'kategori.kategori', 'id_berita']">
             <!-- paginator  -->
@@ -21,16 +20,16 @@
                     <SelectButton v-model="size" size="small" :options="sizeOptions" optionLabel="label"
                         dataKey="label" />
                     <div class="flex flex-row gap-1 justify-center items-center">
-                        <Button v-if="!selectionMode" :size="size.value" class="h-full" text @click="toggleSelection()"
-                            severity="secondary">
+                        <Button v-if="!selectionMode" :size="size.value" class="h-full" text
+                            @click="multipleDeletionToggle()" severity="secondary">
                             <span class="pi pi-trash"></span>
                         </Button>
                         <!-- delete or cancel -->
                         <div v-else>
                             <Button :size="size.value" icon="pi pi-trash" label="Hapus" class="h-full" text
-                                @click="toggleSelection('commit', $event)" severity="danger" />
+                                @click="multipleDeletionToggle('commit', $event)" severity="danger" />
                             <Button :size="size.value" icon="pi pi-times" label="Cancel" class="h-full" text
-                                @click="toggleSelection('cancel')" severity="secondary" />
+                                @click="multipleDeletionToggle('cancel')" severity="secondary" />
                         </div>
                         <IconField>
                             <InputIcon>
@@ -138,15 +137,6 @@
                     Menggunakan data cache. <span class="link" @click="onStart(true, 'view')">Klik untuk refresh</span>
                 </span>
             </Message>
-            <div class="flex justify-center items-center bg-slate-100 !mb-2">
-                <Image :src="this.default.image + modalData.news.gambar" :alt="`image of ${modalData.news.judul}`"
-                    class="w-full lg:max-w-[50vw] md:max-w-[70vw] sm:max-w-[80vw]" preview>
-                    <template #image>
-                        <img :src="this.default.image + modalData.news.gambar" @error="hideMySelf"
-                            class="h-auto w-full aspect-video lg:max-w-[50vw] md:max-w-[70vw] sm:max-w-[80vw]" />
-                    </template>
-                </Image>
-            </div>
             <div class="max-w-[400px]">
                 <p class="font-semibold text-lg">Kategori</p>
                 <Select v-model="modalData.news.kategori" :options="cats" filter optionLabel="kategori"
@@ -198,19 +188,6 @@
 <script>
 import { FilterMatchMode } from '@primevue/core/api';
 
-import Editor from 'primevue/editor';
-// patch for quill editor to fix rendering issue
-Editor.methods.renderValue = function renderValue(value) {
-    if (this.quill) {
-        if (value) {
-            const delta = this.quill.clipboard.convert({ html: value });
-            this.quill.setContents(delta, 'silent');
-        } else {
-            this.quill.setText('');
-        }
-    }
-};
-
 export default {
     inject: ['default'],
     data() {
@@ -240,13 +217,12 @@ export default {
             filters: {
                 global: { value: null, matchMode: FilterMatchMode.CONTAINS },
             },
-            selectedProduct: null,
+            selectedItem: null,
             cacheDuration: 1800000,
             cached: false,
             modal: {
                 viewVisible: false,
                 editVisible: false,
-                exportVisible: false,
             },
             modalData: {
                 newData: null,
@@ -256,10 +232,6 @@ export default {
                 submit_loading: false,
             },
             exportType: null,
-            exportOptions: [
-                { label: 'CSV', value: 'csv' },
-                { label: 'Excel', value: 'excel' },
-            ],
         };
     },
     computed: {
@@ -271,6 +243,9 @@ export default {
         },
         computedVerification() {
             return Object.values(this.modalData.news).some((val) => val === null || val === undefined || val === '' || val.length === 0);
+        },
+        selectedItemId() {
+            return this.selectedItem ? this.selectedItem.map((item) => item.id_berita) : [];
         },
     },
     methods: {
@@ -284,7 +259,7 @@ export default {
                 header: 'Konfirmasi Penghapusan',
                 message: 'Data yang dihapus tidak bisa dipulihkan',
                 accept: () => {
-                    axios.delete(`berita?id_berita=${id}`).then((res) => {
+                    axios.delete('berita', { data: { id_berita: [id] } }).then((res) => {
                         this.onStart(true);
                         this.$toast.add({
                             severity: 'success', summary: 'Success',
@@ -395,11 +370,11 @@ export default {
                     break;
             }
         },
-        toggleSelection(arg, event) {
+        multipleDeletionToggle(arg, event) {
             switch (arg) {
                 case 'cancel':
                     this.selectionMode = false;
-                    this.selectedProduct = null;
+                    this.selectedItem = null;
                     this.$toast.add({ severity: 'info', summary: 'Info', detail: 'Tidak ada item yang dihapus', life: 3000 });
                     break;
                 case 'commit':
@@ -412,11 +387,16 @@ export default {
                         header: 'Konfirmasi Penghapusan',
                         message: 'Data yang dihapus tidak bisa dipulihkan',
                         accept: () => {
-                            if (this.selectedProduct) {
+                            axios.delete('berita', { data: { id_berita: this.selectedItemId } }).then((res) => {
+                                console.log(res);
+                                this.onStart(true);
+                                this.selectionMode = false;
+                                this.selectedItem = null;
                                 this.$toast.add({ severity: 'success', summary: 'Success', detail: 'Data berhasil dihapus', life: 3000 });
-                            } else {
-                                this.$toast.add({ severity: 'info', summary: 'Info', detail: 'Tidak ada item yang dihapus', life: 3000 });
-                            }
+                            }).catch((err) => {
+                                this.$toast.add({ severity: 'error', summary: 'Error', detail: 'Data gagal dihapus', life: 3000 });
+                                console.log(err);
+                            });
                         },
                         reject: () => {
                             this.$toast.add({ severity: 'info', summary: 'Info', detail: 'Data tidak dihapus', life: 3000 });
@@ -425,7 +405,7 @@ export default {
                     break;
                 default:
                     this.selectionMode = !this.selectionMode;
-                    this.selectedProduct = null;
+                    this.selectedItem = null;
                     break;
             }
         },

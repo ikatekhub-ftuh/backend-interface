@@ -7,7 +7,6 @@ const ngrokHeader = {
     }
 }
 
-
 export default {
     namespaced: true,
     state: {
@@ -17,6 +16,9 @@ export default {
     getters: {
         auth(state) {
             return state.token && state.user
+        },
+        user(state) {
+            return state.user
         },
         admin(state) {
             return state.user.is_admin

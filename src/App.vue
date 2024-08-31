@@ -8,12 +8,26 @@
 </template>
 
 <script>
+
+import Editor from 'primevue/editor';
+// patch for quill editor to fix rendering issue
+Editor.methods.renderValue = function renderValue(value) {
+    if (this.quill) {
+        if (value) {
+            const delta = this.quill.clipboard.convert({ html: value });
+            this.quill.setContents(delta, 'silent');
+        } else {
+            this.quill.setText('');
+        }
+    }
+};
+
 export default {
     name: 'App',
     data() {
         return {
             default: {
-                title: 'IKATEKhub FTUH',
+                title: 'ANTEK HUB',
                 image: 'http://127.0.0.1:8000/storage/'
             }
         };

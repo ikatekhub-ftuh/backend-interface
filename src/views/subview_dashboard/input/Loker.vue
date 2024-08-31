@@ -158,7 +158,7 @@ export default {
             this.loker = {
                 editor: '',
                 title: '',
-                author: 'Admin',
+                author: 'Admin ANTEK HUB',
                 cat: '',
                 max: 100,
             }

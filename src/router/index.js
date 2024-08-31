@@ -22,6 +22,12 @@ const routes = [
                 component: () => import('../views/Dashboard.vue'),
             },
             {
+                path: '/profile',
+                name: 'profile',
+                component: () => import('../views/subview_dashboard/Profile.vue')
+            },
+            // input
+            {
                 path: '/input/berita',
                 name: 'input berita',
                 component: () => import('../views/subview_dashboard/input/News.vue'),

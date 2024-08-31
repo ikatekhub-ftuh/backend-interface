@@ -25,7 +25,6 @@ axios.defaults.headers.common = {
     ...config.headers,
 }
 
-
 store.dispatch('auth/attempt', localStorage.getItem('token')).then(() => {
     createApp(App)
         .use(router)

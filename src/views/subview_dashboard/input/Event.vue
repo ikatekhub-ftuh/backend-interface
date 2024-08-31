@@ -73,7 +73,7 @@ export default {
                 editor: '',
                 title: '',
                 thumbnail: null,
-                author: 'Admin',
+                author: 'Admin ANTEK HUB',
                 location: '',
                 start: '',
                 max: 1000,
@@ -129,7 +129,7 @@ export default {
                 editor: '',
                 title: '',
                 thumbnail: '',
-                author: 'Admin',
+                author: 'Admin ANTEK HUB',
                 cat: '',
                 max: 100,
             }
