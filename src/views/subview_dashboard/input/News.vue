@@ -42,7 +42,7 @@
         </div>
         <div>
             <p class="mb-2 font-semibold text-xl">Deskripsi</p>
-            <Textarea v-model="news.desc" rows="5" cols="30" placeholder="Judul Berita"
+            <Textarea v-model="news.desc" rows="5" cols="30" placeholder="Deskripsi berita"
                 v-tooltip.bottom="{ value: 'Masukkan deskripsi berita anda di sini', showDelay: 1000, hideDelay: 300 }"
                 fluid />
         </div>
@@ -81,7 +81,7 @@ export default {
     },
     computed: {
         computedVerification() {
-            return Object.values(this.news).some((val) => val === null || val === undefined || val === '' || val === [] || val === {});
+            return Object.values(this.news).some((val) => val === null || val === undefined || val === '' || val.length === 0);
         }
     },
     methods: {

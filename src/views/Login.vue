@@ -50,8 +50,12 @@ export default {
                     this.$router.push({ name: 'dashboard' });
                 }
             }).catch((err) => {
-                const errorMessage = err.response.data.message.replace('\\n', '\n');
-                this.$toast.add({ severity: 'error', summary: 'Error', detail: errorMessage, life: 3000 });
+                try {
+                    const errorMessage = err.response.data.message.replace('\\n', '\n');
+                    this.$toast.add({ severity: 'error', summary: 'Error', detail: errorMessage, life: 3000 });
+                } catch (error) {
+                    this.$toast.add({ severity: 'error', summary: 'Error', detail: 'Login failed', life: 3000 });
+                }
             }).finally(() => {
                 this.loading = false;
             })

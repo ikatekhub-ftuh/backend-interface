@@ -26,6 +26,7 @@ export default defineConfig({
                     'axios': [['default', 'axios']],
                     'vuex': ['mapState', 'mapGetters', 'mapMutations', 'mapActions'],
                     '@vueuse/integrations/useIDBKeyval': ['useIDBKeyval'],
+                    '@vueuse/core': ['useCloned'],
                 }
             ],
         })
