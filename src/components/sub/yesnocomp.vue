@@ -1,6 +1,6 @@
 <template>
     <Button label="Submit" :loading="submitloading" :disabled="off" @click="onSubmit($event)" severity="success" />
-    <Button label="Clear" @click="onClear($event)" severity="danger" />
+    <Button :class="hideno ? 'hidden' : ''" label="Clear" @click="onClear($event)" severity="danger" />
 </template>
 
 <script>
@@ -14,6 +14,10 @@ const groupEnum = {
 export default {
     name: 'yesnocomp',
     props: {
+        hideno: {
+            type: Boolean,
+            default: false,
+        },
         off: {
             type: Boolean,
             default: true,

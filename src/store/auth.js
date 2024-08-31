@@ -60,6 +60,12 @@ export default {
             await axios.post('auth/logout')
             commit('SETTOKEN', null)
             commit('SETUSER', null)
+        },
+        async update({ commit }, data) {
+            let response = await axios.post('user/update', data)
+            console.log(response)
+            commit('SETUSER', response.data.data)
+            return response
         }
     },
 }
