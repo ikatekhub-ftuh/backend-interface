@@ -48,6 +48,12 @@ TODO date nya bikin range (start - end)
             <sub-advpic ref="AdvPic" @changeImg="changeImg" />
         </div>
         <div>
+            <p class="mb-2 font-semibold text-xl">Deskripsi</p>
+            <Textarea v-model="event.desc" rows="5" cols="30" placeholder="Deskripsi event"
+                v-tooltip.bottom="{ value: 'Masukkan deskripsi event anda di sini', showDelay: 1000, hideDelay: 300 }"
+                fluid />
+        </div>
+        <div>
             <p class="mb-2 font-semibold text-xl">Event</p>
             <div>
                 <Editor v-model="event.editor" editorStyle="height: 400px" />
@@ -77,6 +83,7 @@ export default {
                 location: '',
                 start: '',
                 max: 1000,
+                desc: '',
             },
         }
     },
@@ -107,6 +114,7 @@ export default {
             fd.append('tgl_event', this.event.start.toISOString().split('T')[0]);
             fd.append('kuota', this.event.max);
             fd.append('konten', this.event.editor);
+            fd.append('deskripsi', this.event.desc);
 
             axios.post('event', fd)
                 .then((res) => {

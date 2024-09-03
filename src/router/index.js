@@ -59,10 +59,10 @@ const routes = [
                 component: () => import('../views/subview_dashboard/data/News.vue')
             },
             {
-                path: '/data/view/:id',
-                name: 'view data',
-                component: () => import('../views/subview_dashboard/data/View.vue')
-            }
+                path: '/data/event',
+                name: 'data event',
+                component: () => import('../views/subview_dashboard/data/Event.vue')
+            },
         ]
     },
 ]
@@ -76,9 +76,6 @@ router.beforeEach((to, from, next) => {
     if (to.meta.requiresAuth && !store.getters['auth/auth']) {
         return next({ name: 'login' })
     }
-    // if (to.meta.requiresAuth && !store.getters['auth/role']) {
-    //     return next({ name: 'login' })
-    // }
     next()
 })
 

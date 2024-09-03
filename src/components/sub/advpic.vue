@@ -1,5 +1,3 @@
-<!-- TODO fix the damn file uploader, atau ganti saja sama yang lain deh apakah ini sumpahka -->
-
 <template>
     <FileUpload name="thumbnail" :multiple="false" ref="fileUpload" @select="handleFileChange(false, $event)"
         @remove="handleFileChange(true, $event)" accept="image/png,image/jpeg,image/jpg" :fileLimit="1"
@@ -10,9 +8,6 @@
                     <Button :disabled="files.length !== 0" @click="chooseCallback()" outlined severity="secondary"><span
                             class="pi pi-images" />Pilih</Button>
                 </div>
-                <!-- file size -->
-                <!-- <div class="whitespace-nowrap">{{files.length !== 0 ? files[0].name + ' - ' + (files[0].size /
-                    2000).toFixed(2) + 'KB / 2Mb' : '0KB / 2Mb'}}</div> -->
             </div>
         </template>
         <template #empty>

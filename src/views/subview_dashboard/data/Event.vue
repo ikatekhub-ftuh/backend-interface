@@ -1,5 +1,6 @@
-<template>
+<!-- !ADD VIEW PESERTA -->
 
+<template>
     <div class="flex flex-col gap-5 main">
         <Message severity="info" icon="pi pi-database" v-if="cached" closable>
             <span>
@@ -12,10 +13,8 @@
                 Terakhir diambil pada {{ getLastFetchTime() }}
             </span>
         </Message>
-        <DataTable removableSort v-model:filters="filters" ref="dt" v-model:selection="selectedItem" :value="news"
-            paginator :rows="10" :rowsPerPageOptions="[5, 10, 15]" :size="size.value" dataKey="id_berita"
-            :globalFilterFields="['judul', 'penulis', 'kategori.kategori', 'id_berita']">
-            <!-- paginator  -->
+        <DataTable removableSort v-model:filters="filters" ref="dt" v-model:selection="selectedItem" :value="items"
+            paginator :rows="10" :globalFilterFields="['id_event', 'judul', 'tgl_event', 'lokasi_event']" :rowsPerPageOptions="[5, 10, 15]" :size="size.value" dataKey="id_event">
             <template #header>
                 <div class="flex justify-between">
                     <SelectButton v-model="size" size="small" :options="sizeOptions" optionLabel="label"
@@ -42,41 +41,35 @@
                 </div>
             </template>
             <Column v-if="selectionMode" selectionMode="multiple" headerStyle="width: 3rem"></Column>
-            <Column field="id_berita" sortable header="ID"></Column>
-            <Column field="judul" sortable header="Judul"></Column>
-            <Column field="penulis" sortable header="Penulis"></Column>
-            <Column field="total_like" sortable header="Like">
+            <Column sortable field="id_event" header="ID"></Column>
+            <Column sortable field="judul" header="Judul"></Column>
+            <Column sortable field="tgl_event" header="Tanggal Event"></Column>
+            <Column sortable field="lokasi_event" header="Lokasi Event"></Column>
+            <Column sortable field="kuota" header="Kuota">
                 <template #body="slotProps">
-                    <span class="pi pi-thumbs-up mr-2"></span>
-                    <span class="text-ellipsis text-nowrap"> {{ slotProps.data.total_like }} </span>
+                    <span>{{ slotProps.data.peserta }} / {{ slotProps.data.kuota }}</span>
                 </template>
             </Column>
-            <Column field="kategori.kategori" sortable header="Kategori">
-                <template #body="slotProps">
-                    <span class="category text-ellipsis text-nowrap"> {{ slotProps.data.kategori.kategori }} </span>
-                </template>
-            </Column>
-            <Column  header="Action">
+            <Column header="Action">
                 <template #body="slotProps">
                     <div class="flex flex-row gap-1">
-                        <Button :size="size.value" @click="onDelete(slotProps.data.id_berita, $event)"
+                        <Button :size="size.value" @click="onDelete(slotProps.data.id_event, $event)"
                             severity="danger">
                             <span class="pi pi-trash"></span>
                         </Button>
-                        <Button :size="size.value" @click="openModal('view', slotProps.data.id_berita)" severity="info">
+                        <Button :size="size.value" @click="openModal('view', slotProps.data.id_event)" severity="info">
                             <span class="pi pi-eye"></span>
                         </Button>
-                        <Button :size="size.value" @click="openModal('edit', slotProps.data.id_berita)" severity="warn">
+                        <Button :size="size.value" @click="openModal('edit', slotProps.data.id_event)" severity="warn">
                             <span class="pi pi-pencil"></span>
                         </Button>
                     </div>
                 </template>
             </Column>
-            <!-- hidden Column for exporting purpose -->
+            <!-- invisible -->
             <Column field="deskripsi" header="Deskripsi" class="hidden"></Column>
-            <Column field="konten" header="Konten" class="hidden"></Column>
+            <Column field="penyelenggara" header="Penyelenggara" class="hidden"></Column>
             <Column field="gambar" header="Gambar" class="hidden"></Column>
-            <Column field="created_at" header="Created At" class="hidden"></Column>
             <template #paginatorstart>
                 <Button type="button" icon="pi pi-refresh" text @click="onStart(true)" />
             </template>
@@ -86,110 +79,109 @@
         </DataTable>
     </div>
 
-    <Dialog v-if="modalData.news" v-model:visible="modal.viewVisible" modal maximizable dismissableMask
+
+    <Dialog v-if="modalData.items" v-model:visible="modal.viewVisible" modal maximizable dismissableMask
         :header="modalData.header" @hide="() => { modalData = { newData: null } }" :style="{ width: '50vw' }"
         :breakpoints="{ '1199px': '80vw', '575px': '100vw' }">
         <div class="fluid *:mb-1">
-
             <Message severity="info" icon="pi pi-database" v-if="modalData.usingCache" closable>
                 <span>
                     Menggunakan data cache. <span class="link" @click="onStart(true, 'view')">Klik untuk refresh</span>
                 </span>
             </Message>
-
             <div class="flex justify-center items-center bg-slate-100 !mb-2">
-                <Image :src="this.default.image + modalData.news.gambar" :alt="`image of ${modalData.news.judul}`"
+                <Image :src="this.default.image + modalData.items.gambar" :alt="`image of ${modalData.items.judul}`"
                     class="w-full lg:max-w-[50vw] md:max-w-[70vw] sm:max-w-[80vw]" preview>
                     <template #image>
-                        <img :src="this.default.image + modalData.news.gambar" @error="hideMySelf"
+                        <img :src="this.default.image + modalData.items.gambar" @error="hideMySelf"
                             class="h-auto w-full aspect-video lg:max-w-[50vw] md:max-w-[70vw] sm:max-w-[80vw]" />
                     </template>
                 </Image>
             </div>
             <div>
-                <Tag :value="modalData.news.kategori.kategori" severity="info" />
+                <h2 class="font-semibold text-2xl">{{ modalData.items.judul }}</h2>
             </div>
             <div>
-                <h2 class="font-semibold text-2xl">{{ modalData.news.judul }}</h2>
+                <span class="font-medium">By {{ modalData.items.penyelenggara }}</span>
             </div>
-            <div>
-                <span class="font-medium">By {{ modalData.news.penulis }}</span>
+            <div class="font-semibold flex items-center">
+                <span class="pi pi-map-marker mr-2"></span>{{ modalData.items.lokasi_event }}
+            </div>
+            <div class="font-semibold flex items-center">
+                <span class="pi pi-user mr-2"></span>{{ modalData.items.peserta }} / {{ modalData.items.kuota }}
             </div>
             <div class="font-semibold">
-                <span class="pi pi-thumbs-up mr-2 "></span>{{ modalData.news.total_like }} Likes
+                <span class="pi pi-calendar mr-2"></span>{{ formattedDate(modalData.items.tgl_event) }}
+                <span class="font-normal text-gray-600"> ({{ daysLeft(modalData.items.tgl_event) }})</span>
             </div>
-            <div class="font-semibold">
-                <span class="pi pi-calendar mr-2 "></span>{{ formattedDate(modalData.news.created_at) }}
-            </div>
-            <div class=" max-w-max overflow-y-scroll max-h-[400px]">{{ modalData.news.deskripsi }}</div>
-            <Divider></Divider>
+            <div class="max-w-max overflow-y-scroll max-h-[400px]">{{ modalData.items.deskripsi }}</div>
             <Panel header="Konten" toggleable>
-                <div class="prose w-full max-w-full overflow-y-scroll max-h-[700px]" v-html="modalData.news.konten">
+                <div class="prose w-full max-w-full overflow-y-scroll max-h-[700px]" v-html="modalData.items.konten">
                 </div>
             </Panel>
         </div>
     </Dialog>
 
-    <Dialog v-if="modalData.news" v-model:visible="modal.editVisible" modal maximizable dismissableMask
+    <Dialog v-if="modalData.items" v-model:visible="modal.editVisible" modal maximizable dismissableMask
         :header="modalData.header" @hide="() => { modalData = { newData: null } }" :style="{ width: '50vw' }"
         :breakpoints="{ '1199px': '80vw', '575px': '100vw' }">
-        <div class="fluid *:mb-2">
-            {{ modalData.newData }}
-            <Message severity="info" icon="pi pi-database" v-if="modalData.usingCache" closable>
-                <span>
-                    Menggunakan data cache. <span class="link" @click="onStart(true, 'view')">Klik untuk refresh</span>
-                </span>
-            </Message>
-            <div>
+        {{ modalData }}
+        <div class="fluid *:mb-2 *:max-w-[400px]">
+            <div class="max-w-full">
                 <p class="font-semibold text-lg">Thumbnail</p>
                 <sub-advpic ref="AdvPic" @changeImg="changeImg" />
             </div>
-            <div class="max-w-[400px]">
-                <p class="font-semibold text-lg">Kategori</p>
-                <Select v-model="modalData.news.kategori" :options="cats" filter optionLabel="kategori"
-                    placeholder="Kategori" class="!w-full md:w-56">
-                    <template #value="slotProps">
-                        <div v-if="slotProps.value.kategori" class="flex items-center">
-                            <div>{{ slotProps.value.kategori }}</div>
-                        </div>
-                        <span v-else>
-                            {{ slotProps.placeholder }}
-                        </span>
-                    </template>
-                    <template #option="slotProps">
-                        <div class="flex justify-between gap-2">{{ slotProps.option.kategori }}</div>
-                    </template>
-                </Select>
-            </div>
-            <div class="max-w-[400px]">
+            <div>
                 <p class="font-semibold text-lg">Judul</p>
-                <InputText fluid v-model="modalData.news.judul" placeholder="Judul Berita"
-                    v-tooltip.bottom="{ value: 'Masukkan judul berita anda di sini', showDelay: 1000, hideDelay: 300 }" />
-            </div>
-            <div class="max-w-[400px]">
-                <p class="font-semibold text-lg">Penulis</p>
-                <InputText fluid v-model="modalData.news.penulis" placeholder="Penulis Berita"
-                    v-tooltip.bottom="{ value: 'Masukkan nama penulis berita anda di sini', showDelay: 1000, hideDelay: 300 }" />
-            </div>
-            <div class="max-w-[400px] overflow-y-scroll max-h-[400px]">
-                <p class="font-semibold text-lg">Deskripsi</p>
-                <Textarea class="w-full" v-model="modalData.news.deskripsi" rows="5" cols="30"
-                    placeholder="Deskripsi berita"
-                    v-tooltip.bottom="{ value: 'Masukkan deskripsi berita anda di sini', showDelay: 1000, hideDelay: 300 }" />
+                <InputText fluid v-model="modalData.items.judul" placeholder="Judul event"
+                    v-tooltip.bottom="{ value: 'Masukkan judul event anda di sini', showDelay: 1000, hideDelay: 300 }" />
             </div>
             <div>
+                <p class="font-semibold text-lg">Penulis</p>
+                <InputText fluid v-model="modalData.items.penyelenggara" placeholder="Penulis event"
+                    v-tooltip.bottom="{ value: 'Masukkan nama penulis event anda di sini', showDelay: 1000, hideDelay: 300 }" />
+            </div>
+            <div>
+                <p class="mb-2 font-semibold text-xl">Tanggal Event</p>
+                <DatePicker fluid v-model="modalData.items.tgl_event" :min-date="minDate" placeholder="Tanggal Event" showIcon />
+                <p class="info" v-if="modalData.items.tgl_event">{{ daysLeft(modalData.items.tgl_event) }}</p>
+            </div>
+            <div>
+                <p class="mb-2 font-semibold text-xl">Lokasi</p>
+                <InputText fluid v-model="modalData.items.lokasi_event" placeholder="Lokasi Event"
+                    v-tooltip.bottom="{ value: 'Masukkan nama lokasi event di sini', showDelay: 1000, hideDelay: 300 }"/>
+            </div>
+            <div>
+                <p class="mb-2 font-semibold text-xl">Kuota</p>
+                <InputNumber showButtons buttonLayout="horizontal" :min="1" v-model="modalData.items.kuota"
+                    inputId="withoutgrouping" :useGrouping="false" :step="25" fluid>
+                    <template #incrementbuttonicon>
+                        <span class="pi pi-plus" />
+                    </template>
+                    <template #decrementbuttonicon>
+                        <span class="pi pi-minus" />
+                    </template>
+                </InputNumber>
+            </div>
+            <div class="overflow-y-scroll max-h-[400px] max-w-full">
+                <p class="font-semibold text-lg">Deskripsi</p>
+                <Textarea class="w-full" v-model="modalData.items.deskripsi" rows="5" cols="30"
+                    placeholder="Deskripsi event"
+                    v-tooltip.bottom="{ value: 'Masukkan deskripsi event anda di sini', showDelay: 1000, hideDelay: 300 }" />
+            </div>
+            <div class="max-w-full">
                 <p class="font-semibold text-lg">Artikel</p>
                 <div>
-                    <Editor v-model="modalData.news.konten">
-                    </Editor>
+                    <Editor v-model="modalData.items.konten"></Editor>
                 </div>
             </div>
-            <div class="flex items-center gap-2 ">
+            <div class="flex items-center gap-2 max-w-full">
                 <sub-yesnocomp :off="computedVerification" :submitloading="buttonState.submit_loading" @yes="onSubmit()"
-                    @no="onClear()" />
+                    @no="onClear()"/>
             </div>
         </div>
     </Dialog>
+
 </template>
 
 <script>
@@ -198,7 +190,7 @@ import { FilterMatchMode } from '@primevue/core/api';
 export default {
     inject: ['default'],
     data() {
-        const KEY = 'news';
+        const KEY = 'events';
         const stateObject = useIDBKeyval(`${KEY}-object`, {
             data: [],
         });
@@ -213,7 +205,8 @@ export default {
             key: KEY,
             localState,
             selectionMode: false,
-            news: [
+            minDate: new Date(),
+            items: [
             ],
             size: { label: 'Normal', value: 'null' },
             sizeOptions: [
@@ -244,54 +237,39 @@ export default {
     computed: {
         formattedDate() {
             return (dateString) => {
-                const options = { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+                const options = { day: '2-digit', month: '2-digit', year: 'numeric'};
                 return new Date(dateString).toLocaleDateString('id-ID', options);
             };
         },
+        daysLeft() {
+            return (dateString) => {
+                // if date is today
+                if (new Date(dateString).toDateString() === new Date().toDateString()) {
+                    return "Hari ini";
+                }
+
+                if (new Date(dateString) < new Date()) {
+                    return "Event telah melewatkan waktu mulai";
+                }
+
+                const date = new Date(dateString);
+                const now = new Date();
+                const diffTime = Math.abs(date - now);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                return `${diffDays} Hari lagi`;
+            };
+        },
         computedVerification() {
-            return Object.values(this.modalData.news).some((val) => val === null || val === undefined || val === '' || val.length === 0);
+            return Object.values(this.modalData.items).some((val) => val === null || val === undefined || val === '' || val.length === 0);
         },
         selectedItemId() {
-            return this.selectedItem ? this.selectedItem.map((item) => item.id_berita) : [];
+            // watch
+            return this.selectedItem ? this.selectedItem.map((item) => item.id_event) : [];
         },
     },
     methods: {
-        changeImg(img) {
-            this.modalData.newData = img;
-            console.log(this.modalData.newData);
-        },
-        onDelete(id, event) {
-            this.$confirm.require({
-                target: event.currentTarget,
-                icon: 'pi pi-exclamation-triangle',
-                acceptProps: { label: 'Ya', severity: 'success' },
-                rejectProps: { label: 'Tidak', severity: 'warning' },
-                group: window.innerWidth < 1024 ? 'dialog' : 'popup',
-                header: 'Konfirmasi Penghapusan',
-                message: 'Data yang dihapus tidak bisa dipulihkan',
-                accept: () => {
-                    axios.delete('berita', { data: { id_berita: [id] } }).then((res) => {
-                        this.onStart(true);
-                        this.$toast.add({
-                            severity: 'success', summary: 'Success',
-                            detail: 'Data berhasil dihapus', life: 3000,
-                        });
-                    }).catch((err) => {
-                        // error becuase of onDelete restrict from backend
-                        this.$toast.add({
-                            severity: 'error', summary: 'Error',
-                            detail: 'Data gagal dihapus', life: 3000,
-                        });
-                        console.log(err);
-                    });
-                },
-                reject: () => {
-                    this.$toast.add({
-                        severity: 'info', summary: 'Info',
-                        detail: 'Data tidak dihapus', life: 3000,
-                    });
-                },
-            });
+        changeImg(newData) {
+            this.modalData.newData = newData;
         },
         async exportCSV() {
             this.$refs.dt.exportCSV();
@@ -332,20 +310,20 @@ export default {
             const now = new Date().getTime();
 
             const lastFetches = JSON.parse(localStorage.getItem('lastFetches')) || {};
-            const cachednews = JSON.stringify(this.localState.data.data);
+            const cacheditems = JSON.stringify(this.localState.data.data);
 
-            if (lastFetches.news && cachednews && (now - lastFetches.news < this.cacheDuration) && !force) {
-                this.news = JSON.parse(cachednews);
+            if (lastFetches.events && cacheditems && (now - lastFetches.events < this.cacheDuration) && !force) {
+                this.items = JSON.parse(cacheditems);
                 this.cached = true;
                 return;
             }
 
-            axios.get('http://127.0.0.1:8000/api/berita?all').then((res) => {
-                this.news = res.data.data.data
-                lastFetches.news = now;
+            axios.get('event?all').then((res) => {
+                this.items = res.data.data.data
+                // watch
+                lastFetches.events = now;
                 localStorage.setItem('lastFetches', JSON.stringify(lastFetches));
-                this.localState.data.data = this.news;
-
+                this.localState.data.data = this.items;
                 this.cached = false;
                 this.$toast.add({ severity: 'success', summary: 'Success', detail: 'Data fetched successfully', life: 3000 });
             }).catch((err) => {
@@ -355,9 +333,10 @@ export default {
         },
         openModal(context, id, event) {
             if (id) {
-                const news = this.localState.data.data.find((item) => item.id_berita === id);
-                const { cloned, sync } = useCloned(news)
-                this.modalData.news = cloned;
+                // watch
+                const items = this.localState.data.data.find((item) => item.id_event === id);
+                const { cloned, sync } = useCloned(items)
+                this.modalData.items = cloned;
                 if (this.cached) {
                     this.modalData.usingCache = true;
                 }
@@ -365,21 +344,51 @@ export default {
 
             switch (context) {
                 case 'view':
-                    this.modalData.header = 'View News';
+                    this.modalData.header = `View event`;
                     this.modal.viewVisible = true;
                     break;
                 case 'edit':
-                    this.modalData.header = 'Edit News';
+                    this.modalData.header = `Edit event`;
                     this.modal.editVisible = true;
-                    axios.get('berita/kategori').then((res) => {
-                        this.cats = res.data.data;
-                    }).catch((err) => {
-                        console.log(err);
-                    });
                     break;
                 default:
                     break;
             }
+        },
+
+        onDelete(id, event) {
+            this.$confirm.require({
+                target: event.currentTarget,
+                icon: 'pi pi-exclamation-triangle',
+                acceptProps: { label: 'Ya', severity: 'success' },
+                rejectProps: { label: 'Tidak', severity: 'warning' },
+                group: window.innerWidth < 1024 ? 'dialog' : 'popup',
+                header: 'Konfirmasi Penghapusan',
+                message: 'Data yang dihapus tidak bisa dipulihkan',
+                accept: () => {
+                    // watch
+                    axios.delete('event', { data: { id_event: [id] } }).then((res) => {
+                        this.onStart(true);
+                        this.$toast.add({
+                            severity: 'success', summary: 'Success',
+                            detail: 'Data berhasil dihapus', life: 3000,
+                        });
+                    }).catch((err) => {
+                        // error becuase of onDelete restrict from backend
+                        this.$toast.add({
+                            severity: 'error', summary: 'Error',
+                            detail: 'Data gagal dihapus', life: 3000,
+                        });
+                        console.log(err);
+                    });
+                },
+                reject: () => {
+                    this.$toast.add({
+                        severity: 'info', summary: 'Info',
+                        detail: 'Data tidak dihapus', life: 3000,
+                    });
+                },
+            });
         },
         multipleDeletionToggle(arg, event) {
             switch (arg) {
@@ -398,7 +407,7 @@ export default {
                         header: 'Konfirmasi Penghapusan',
                         message: 'Data yang dihapus tidak bisa dipulihkan',
                         accept: () => {
-                            axios.delete('berita', { data: { id_berita: this.selectedItemId } }).then((res) => {
+                            axios.delete('event', { data: { id_event: this.selectedItemId } }).then((res) => {
                                 console.log(res);
                                 this.onStart(true);
                                 this.selectionMode = false;
@@ -422,10 +431,11 @@ export default {
         },
         getLastFetchTime() {
             const lastFetches = JSON.parse(localStorage.getItem('lastFetches')) || {};
-            if (lastFetches.news) {
-                const date = new Date(parseInt(lastFetches.news))
+            // watch
+            if (lastFetches.events) {
+                const date = new Date(parseInt(lastFetches.events))
                     .toLocaleString('id-ID');
-                const diff = new Date().getTime() - lastFetches.news;
+                const diff = new Date().getTime() - lastFetches.events;
 
                 if (diff < 60000) {
                     return `${date} (${Math.floor(diff / 1000)} detik yang lalu)`;
@@ -443,34 +453,31 @@ export default {
         onSubmit() {
             this.buttonState.submit_loading = true;
             const fd = new FormData();
+
+            fd.append('id_event', this.modalData.items.id_event);
+            fd.append('judul', this.modalData.items.judul);
+
             if (this.modalData.newData) {
-                console.log('gambar ada');
-                console.log(this.modalData.newData);
                 fd.append('gambar', this.modalData.newData);
             }
-            fd.append('id_berita', this.modalData.news.id_berita);
-            fd.append('id_kategori_berita', this.modalData.news.kategori.id_kategori_berita);
-            fd.append('judul', this.modalData.news.judul);
-            if (this.modalData.news.konten !== this.localState.data.data.find((item) => item.id_berita === this.modalData.news.id_berita).konten) {
-                fd.append('konten', this.modalData.news.konten);
-                console.log('kontent tidak sama');
-            } else {
-                console.log('kontent sama');
-            }
 
-            fd.append('deskripsi', this.modalData.news.deskripsi);
-            fd.append('penulis', this.modalData.news.penulis);
+            fd.append('penyelenggara', this.modalData.items.penyelenggara);
+            fd.append('lokasi_event', this.modalData.items.lokasi_event);
+            fd.append('tgl_event', this.modalData.items.tgl_event);
+            fd.append('kuota', this.modalData.items.kuota);
+            fd.append('konten', this.modalData.items.konten);
+            fd.append('deskripsi', this.modalData.items.deskripsi);
 
-            axios.post('berita/edit', fd)
+            axios.post('event/edit', fd)
                 .then((res) => {
                     this.onStart(true);
-                    console.log(res.data);
                     this.modal.editVisible = false;
                     this.$toast.add({ severity: 'success', summary: 'Terupload', detail: 'Data berita anda berhasil diupload', life: 3000 });
                     this.buttonState.submit_loading = false;
                 })
                 .catch((err) => {
                     this.$toast.add({ severity: 'error', summary: 'Gagal', detail: 'Data berita anda gagal diupload', life: 3000 });
+                    console.log(err);
                     this.buttonState.submit_loading = false;
                 })
         },

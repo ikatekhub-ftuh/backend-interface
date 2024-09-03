@@ -97,6 +97,7 @@ export default {
                         {
                             label: 'Event',
                             icon: 'pi pi-calendar',
+                            to: 'data event'
                         },
                     ]
                 },
