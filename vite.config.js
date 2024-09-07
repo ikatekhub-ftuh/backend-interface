@@ -18,6 +18,7 @@ export default defineConfig({
             include: [
                 /\.vue$/,
                 /\.vue\?vue/, // .vue
+                /\.js$/,
             ],
             imports: [
                 'vue',

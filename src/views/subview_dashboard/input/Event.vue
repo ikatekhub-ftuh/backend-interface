@@ -63,7 +63,6 @@ TODO date nya bikin range (start - end)
             <sub-yesnocomp :off="computedVerification" :submitloading="buttonState.submit_loading" @yes="onSubmit()"
                 @no="onClear()" />
         </div>
-        {{ event }}
     </div>
 </template>
 

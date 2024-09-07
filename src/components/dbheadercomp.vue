@@ -14,7 +14,7 @@
                 <div class="flex justify-between items-center gap-2">
                     <Button icon="pi pi-bars" @click="() => { this.$emit('toggle-drawer') }" class="lg:hidden mr-2"
                         severity="secondary" />
-                    <Button icon="pi pi-user" class="mr-2" severity="secondary" />
+                    <Button icon="pi pi-user" class="mr-2" severity="secondary" @click="() => { this.$router.push({name: 'profile'})}" />
                 </div>
             </template>
         </Toolbar>

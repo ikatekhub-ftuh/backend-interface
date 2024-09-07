@@ -31,34 +31,34 @@ export default {
                     icon: 'pi pi-table',
                     to: 'dashboard',
                 },
-                {
-                    label: 'Validasi',
-                    icon: 'pi pi-file-check',
-                    items: [
-                        {
-                            label: 'Data Alumni',
-                            icon: 'pi pi-users',
-                            to: 'testing'
-                        },
-                        {
-                            label: 'Berita',
-                            icon: 'pi pi-info-circle',
-                        },
-                        {
-                            label: 'Event',
-                            icon: 'pi pi-calendar',
-                        },
-                    ]
-                },
+                // {
+                //     label: 'Validasi',
+                //     icon: 'pi pi-file-check',
+                //     items: [
+                //         {
+                //             label: 'Data Alumni',
+                //             icon: 'pi pi-users',
+                //             to: 'testing'
+                //         },
+                //         {
+                //             label: 'Berita',
+                //             icon: 'pi pi-info-circle',
+                //         },
+                //         {
+                //             label: 'Event',
+                //             icon: 'pi pi-calendar',
+                //         },
+                //     ]
+                // },
                 {
                     label: 'Input Data',
                     icon: 'pi pi-file-import',
                     items: [
-                        {
-                            label: 'Data Alumni',
-                            icon: 'pi pi-users',
-                            to: 'input alumni'
-                        },
+                        // {
+                        //     label: 'Data Alumni',
+                        //     icon: 'pi pi-users',
+                        //     to: 'input alumni'
+                        // },
                         {
                             label: 'Berita',
                             icon: 'pi pi-info-circle',
@@ -85,10 +85,11 @@ export default {
                     label: 'Database',
                     icon: 'pi pi-database',
                     items: [
-                        {
-                            label: 'Data Alumni',
-                            icon: 'pi pi-users',
-                        },
+                        // {
+                        //     label: 'Data Alumni',
+                        //     icon: 'pi pi-users',
+                        //     to: 'data alumni'
+                        // },
                         {
                             label: 'Berita',
                             icon: 'pi pi-info-circle',
@@ -106,25 +107,24 @@ export default {
                     icon: 'pi pi-user',
                     to: 'profile',
                 },
-                {
-                    label: 'Accounts',
-                    icon: 'pi pi-shield',
-                    onlysu: true,
-                    items: [
-                        {
-                            label: 'Admin',
-                            icon: 'pi pi-user',
-                        },
-                        {
-                            label: 'User',
-                            icon: 'pi pi-users',
-                        },
-                        {
-                            label: 'Ban',
-                            icon: 'pi pi-ban',
-                        }
-                    ]
-                },
+                // {
+                //     label: 'Accounts',
+                //     icon: 'pi pi-shield',
+                //     items: [
+                //         {
+                //             label: 'Admin',
+                //             icon: 'pi pi-user',
+                //         },
+                //         {
+                //             label: 'User',
+                //             icon: 'pi pi-users',
+                //         },
+                //         {
+                //             label: 'Ban',
+                //             icon: 'pi pi-ban',
+                //         }
+                //     ]
+                // },
                 {
                     label: 'Sign Out',
                     icon: 'pi pi-sign-out',
@@ -149,7 +149,10 @@ export default {
             this.logout().then(() => {
                 console.log('Logged out');
                 this.$router.push({ name: 'login' });
+                this.$toast.add({ severity: 'success', summary: 'Success', detail: 'Anda berhasil log-out', life: 3000 });
+                this.$toast.add({ severity: 'success', summary: 'Success', detail: 'Cache telah dibersihkan', life: 3000 });
             }).catch((err) => {
+                this.$toast.add({ severity: 'error', summary: 'Error', detail: 'Anda gagal log-out', life: 3000 });
                 console.log(err);
             });
         }

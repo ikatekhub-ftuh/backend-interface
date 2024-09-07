@@ -1,12 +1,3 @@
-import axios from "axios";
-
-// hapus ini jika tidak menggunakan ngrok, hapus juga ngrokHeader di bawah
-const ngrokHeader = {
-    headers: {
-        'ngrok-skip-browser-warning': 'true'
-    }
-}
-
 export default {
     namespaced: true,
     state: {
@@ -58,6 +49,9 @@ export default {
         },
         async logout({ commit }) {
             await axios.post('auth/logout')
+            const dbs = await window.indexedDB.databases()
+            dbs.forEach(db => { window.indexedDB.deleteDatabase(db.name) })
+            await localStorage.clear()
             commit('SETTOKEN', null)
             commit('SETUSER', null)
         },

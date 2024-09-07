@@ -12,7 +12,6 @@ TODO select location mungkin dikasih input biasa?
                         v-tooltip.bottom="{ value: 'Masukkan nama posisi anda di sini', showDelay: 1000, hideDelay: 300 }"
                         fluid />
                 </div>
-                {{ loker.company }}
                 <div>
                     <p class="mb-2 font-semibold text-xl">Perusahaan</p>
                     <Select v-model="loker.company" filter optionLabel="nama_perusahaan" :options="company"
@@ -74,13 +73,21 @@ TODO select location mungkin dikasih input biasa?
             </div>
         </div>
         <div>
+            <p class="mb-2 font-semibold text-xl">Deskripsi</p>
+            <Textarea v-model="loker.desc" rows="5" cols="30" placeholder="Deskripsi loker"
+                v-tooltip.bottom="{ value: 'Masukkan deskripsi loker anda di sini', showDelay: 1000, hideDelay: 300 }"
+                fluid />
+        </div>
+
+        <div>
             <p class="mb-2 font-semibold text-xl">Jelaskan Lowongan Kerja Anda</p>
             <div>
                 <Editor v-model="loker.editor" editorStyle="height: 400px" />
             </div>
         </div>
         <div class="flex items-center gap-2">
-            <sub-yesnocomp :submitLoading="buttonState.submit_loading" @yes="onSubmit()" @no="onClear()" />
+            <sub-yesnocomp :submitLoading="buttonState.submit_loading" :off="computedVerificatioin" @yes="onSubmit()"
+                @no="onClear()" />
         </div>
         {{ loker }}
     </div>
@@ -100,6 +107,7 @@ export default {
                 title: '',
                 company: '',
                 location: '',
+                desc: '',
                 end: null,
                 experience: 0,
                 role: 'Paruh Waktu',
@@ -122,6 +130,9 @@ export default {
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
             return diffDays;
         },
+        computedVerificatioin() {
+            return Object.values(this.loker).some((val) => val === '' || val === null || val === undefined);
+        }
     },
     methods: {
         smallScreen() {
@@ -138,6 +149,7 @@ export default {
             fd.append('konten', this.loker.editor);
             fd.append('tgl_selesai', this.loker.end.toISOString().split('T')[0]);
             fd.append('role', this.loker.role);
+            fd.append('deskripsi', this.loker.desc);
 
             axios.post('loker', fd)
                 .then((res) => {
@@ -160,11 +172,12 @@ export default {
                 title: '',
                 author: 'Admin ANTEK HUB',
                 cat: '',
+                desc: '',
                 max: 100,
             }
         },
         fetchCompany() {
-            axios.get('loker/company')
+            axios.get('loker/perusahaan')
                 .then((res) => {
                     this.company = res.data.data;
                 })

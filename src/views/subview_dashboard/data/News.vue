@@ -1,5 +1,4 @@
 <template>
-
     <div class="flex flex-col gap-5 main">
         <Message severity="info" icon="pi pi-database" v-if="cached" closable>
             <span>
@@ -12,8 +11,8 @@
                 Terakhir diambil pada {{ getLastFetchTime() }}
             </span>
         </Message>
-        <DataTable removableSort v-model:filters="filters" ref="dt" v-model:selection="selectedItem" :value="news"
-            paginator :rows="10" :rowsPerPageOptions="[5, 10, 15]" :size="size.value" dataKey="id_berita"
+        <DataTable showGridlines removableSort v-model:filters="filters" ref="dt" v-model:selection="selectedItem"
+            :value="news" paginator :rows="10" :rowsPerPageOptions="[5, 10, 15]" :size="size.value" dataKey="id_berita"
             :globalFilterFields="['judul', 'penulis', 'kategori.kategori', 'id_berita']">
             <!-- paginator  -->
             <template #header>
@@ -47,16 +46,20 @@
             <Column field="penulis" sortable header="Penulis"></Column>
             <Column field="total_like" sortable header="Like">
                 <template #body="slotProps">
-                    <span class="pi pi-thumbs-up mr-2"></span>
-                    <span class="text-ellipsis text-nowrap"> {{ slotProps.data.total_like }} </span>
+                    <Button :size="size.value" severity="info" @click="openModal('like', slotProps.data.id_berita)">
+                        <span class="pi pi-thumbs-up mr-2"></span>
+                        <span class="text-ellipsis text-nowrap"> {{ slotProps.data.total_like }} </span>
+                    </Button>
                 </template>
             </Column>
             <Column field="kategori.kategori" sortable header="Kategori">
                 <template #body="slotProps">
-                    <span class="category text-ellipsis text-nowrap"> {{ slotProps.data.kategori.kategori }} </span>
+                    <Tag class="text-nowrap" severity="info">
+                        {{ slotProps.data.kategori.kategori }}
+                    </Tag>
                 </template>
             </Column>
-            <Column  header="Action">
+            <Column header="Action">
                 <template #body="slotProps">
                     <div class="flex flex-row gap-1">
                         <Button :size="size.value" @click="onDelete(slotProps.data.id_berita, $event)"
@@ -81,7 +84,7 @@
                 <Button type="button" icon="pi pi-refresh" text @click="onStart(true)" />
             </template>
             <template #paginatorend>
-                <Button icon="pi pi-external-link" label="Export" text @click="exportCSV()" />
+                <Button icon="pi pi-external-link" label="Export" text @click="exportCSV('dt')" />
             </template>
         </DataTable>
     </div>
@@ -190,6 +193,44 @@
             </div>
         </div>
     </Dialog>
+
+    <Dialog v-if="modalData.likes" v-model:visible="modal.likesVisible" modal dismissableMask :header="modalData.header"
+        @hide="() => { modalData = { newData: null } }">
+        <DataTable showGridlines v-if="modalData.likes.length != 0" ref="dt2" :value="modalData.likes" paginator
+            v-model:filters="filters_like" :rows="5" :size="size.value"
+            :globalFilterFields="['id_user', 'nama', 'waktu_like']" :rowsPerPageOptions="[5, 10, 15]" dataKey="id_user"
+            removableSort>
+            <template #header>
+                <div class="flex justify-between">
+                    <div class="flex flex-row gap-1 justify-center items-center">
+                        <IconField>
+                            <InputIcon>
+                                <i class="pi pi-search" />
+                            </InputIcon>
+                            <InputText v-model="filters_like['global'].value" placeholder="Keyword Search" />
+                        </IconField>
+                    </div>
+                </div>
+            </template>
+            <Column field="id_user" sortable header="ID User"></Column>
+            <Column field="nama" sortable header="Nama"></Column>
+            <Column field="waktu_like" sortable header="Waktu Like">
+                <template #body="slotProps">
+                    <span>{{ formattedDate(slotProps.data.waktu_like) }}</span>
+                </template>
+            </Column>
+            <template #paginatorstart>
+                <Button type="button" icon="pi pi-refresh" text @click="onStart(true, 'like')" />
+            </template>
+            <template #paginatorend>
+                <Button icon="pi pi-external-link" label="Export" text @click="exportCSV('dt2')" />
+            </template>
+        </DataTable>
+
+        <div v-else>
+            <p class="text-2xl font-semibold w-full text-center !text-gray-400">Data tidak ditemukan.</p>
+        </div>
+    </Dialog>
 </template>
 
 <script>
@@ -215,7 +256,7 @@ export default {
             selectionMode: false,
             news: [
             ],
-            size: { label: 'Normal', value: 'null' },
+            size: localStorage.getItem('appstate.size') ? JSON.parse(localStorage.getItem('appstate.size')) : { label: 'Normal', value: 'null' },
             sizeOptions: [
                 { label: 'Small', value: 'small' },
                 { label: 'Normal', value: 'null' },
@@ -224,12 +265,16 @@ export default {
             filters: {
                 global: { value: null, matchMode: FilterMatchMode.CONTAINS },
             },
+            filters_like: {
+                global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+            },
             selectedItem: null,
-            cacheDuration: 1800000,
+            cacheDuration: 1000 * 60 * 60,
             cached: false,
             modal: {
                 viewVisible: false,
                 editVisible: false,
+                likesVisible: false,
             },
             modalData: {
                 newData: null,
@@ -293,8 +338,9 @@ export default {
                 },
             });
         },
-        async exportCSV() {
-            this.$refs.dt.exportCSV();
+        exportCSV(param) {
+            this.exportType = param;
+            this.$refs[param].exportCSV();
         },
         async loadIndexedDB(timeout = 5000) {
             return new Promise((resolve, reject) => {
@@ -324,6 +370,9 @@ export default {
                     case 'edit':
                         this.modal.editVisible = false;
                         break;
+                    case 'likes':
+                        this.modal.likesVisible = false;
+                        break;
                     default:
                         break;
                 }
@@ -340,7 +389,7 @@ export default {
                 return;
             }
 
-            axios.get('http://127.0.0.1:8000/api/berita?all').then((res) => {
+            axios.get('berita?all').then((res) => {
                 this.news = res.data.data.data
                 lastFetches.news = now;
                 localStorage.setItem('lastFetches', JSON.stringify(lastFetches));
@@ -376,6 +425,16 @@ export default {
                     }).catch((err) => {
                         console.log(err);
                     });
+                    break;
+                case 'like':
+                    this.modalData.header = 'Lihat Likes'
+                    this.modal.likesVisible = true;
+                    console.log(this.modalData.news.id_berita);
+                    axios.get('berita/list-like', { params: { id_berita: this.modalData.news.id_berita } }).then((res) => {
+                        this.modalData.likes = res.data.data;
+                    }).catch(err => {
+                        console.log(err);
+                    })
                     break;
                 default:
                     break;
@@ -424,18 +483,8 @@ export default {
             const lastFetches = JSON.parse(localStorage.getItem('lastFetches')) || {};
             if (lastFetches.news) {
                 const date = new Date(parseInt(lastFetches.news))
-                    .toLocaleString('id-ID');
-                const diff = new Date().getTime() - lastFetches.news;
-
-                if (diff < 60000) {
-                    return `${date} (${Math.floor(diff / 1000)} detik yang lalu)`;
-                } else if (diff < 3600000) {
-                    return `${date} (${Math.floor(diff / 60000)} menit yang lalu)`;
-                } else if (diff < 86400000) {
-                    return `${date} (${Math.floor(diff / 3600000)} jam yang lalu)`;
-                } else {
-                    return `${date} (${Math.floor(diff / 86400000)} hari yang lalu)`;
-                }
+                const timeAgo = useTimeAgo(date);
+                return timeAgo;
             } else {
                 return 'Never';
             }
@@ -475,6 +524,15 @@ export default {
                 })
         },
     },
+
+    watch: {
+        'size': {
+            handler() {
+                localStorage.setItem('appstate.size', JSON.stringify(this.size));
+            },
+            deep: true,
+        },
+    },
     async mounted() {
         await this.loadIndexedDB();
         this.onStart();
@@ -483,16 +541,4 @@ export default {
 };
 </script>
 
-<style scoped>
-.category {
-    padding: 0.2rem 0.5rem;
-    border-radius: 0.5rem;
-    background-color: #e8eaf7;
-    color: #333;
-    font-size: 0.8rem;
-    font-weight: 500;
-    text-transform: capitalize;
-    display: inline-block;
-    cursor: default;
-}
-</style>
+<style scoped></style>

@@ -8,9 +8,9 @@
             <div class="flex flex-col gap-2">
                 <InputGroup>
                     <InputGroupAddon>
-                        <i class="pi pi-user"></i>
+                        <i class="pi pi-envelope"></i>
                     </InputGroupAddon>
-                    <InputText v-model="form.email" placeholder="Username" required />
+                    <InputText v-model="form.email" placeholder="Email" required />
                 </InputGroup>
                 <InputGroup>
                     <InputGroupAddon>
@@ -43,6 +43,8 @@ export default {
             login: 'auth/login'
         }),
         onSubmit() {
+            console.log(this.form);
+            console.log(axios.defaults.headers);
             this.loading = true;
             this.login(this.form).then((res) => {
                 if (res) {

@@ -28,7 +28,7 @@ export default {
         return {
             default: {
                 title: 'ANTEK HUB',
-                image: 'http://127.0.0.1:8000/storage/'
+                image: 'http://api.antekhub.com/storage/'
             }
         };
     },

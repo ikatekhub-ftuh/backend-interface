@@ -1,18 +1,65 @@
 <!-- !TODO: -->
-<!-- *Show Alumni Data if Exist -->
-<!-- *Allow changing email without changing pw -->
+<!--  -->
 
 <template>
-    <div class="card">
-        <Panel header="Account" class="w-fit">
+    <div class="card flex *:h-fit gap-5 flex-wrap">
+        {{ alumni.length }}
+        <Panel header="Alumni" v-if="Object.keys(alumni).length !== 0" class="flex-[1] min-w-[300px]">
+            <div id="alumnifield" class=" *:mb-2 *:*:mb-1">
+                <div>
+                    <p>Nama</p>
+                    <InputText v-model="alumni.nama" fluid readonly placeholder="Nama" />
+                </div>
+                <div>
+                    <p>Tanggal Lahir</p>
+                    <DatePicker v-model="alumni.tgl_lahir" :max-date="today" fluid readonly
+                        placeholder="Tanggal Lahir" />
+                </div>
+                <div>
+                    <p>No. Telp</p>
+                    <InputText v-model="alumni.no_telp" fluid readonly placeholder="No. Telp" />
+                </div>
+                <div>
+                    <p>Jurusan</p>
+                    <InputText v-model="alumni.jurusan" fluid readonly placeholder="Jurusan" />
+                </div>
+                <div>
+                    <p>Angkatan</p>
+                    <InputText v-model="alumni.angkatan" fluid readonly placeholder="Angkatan" />
+                </div>
+                <div>
+                    <p>No. Anggota</p>
+                    <InputText v-model="alumni.no_anggota" fluid readonly placeholder="No. Anggota" />
+                </div>
+                <div>
+                    <p>NIM</p>
+                    <InputText v-model="alumni.nim" fluid readonly placeholder="NIM" />
+                </div>
+                <div>
+                    <p>Agama</p>
+                    <InputText fluid v-model="alumni.agama" readonly placeholder="Agama" />
+                </div>
+                <div class="w-full flex justify-center mt-3">
+                    <SelectButton v-model="alumni.kelamin" :options="['l', 'p']" disabled>
+                        <template #option="{ option }">
+                            {{ option === 'l' ? 'Laki-laki' : 'Perempuan' }}
+                        </template>
+                    </SelectButton>
+                </div>
+            </div>
+        </Panel>
+        <Panel header="Account" class="w-fit flex-[1.5] min-w-[300px] max-w-[500px]">
             <template #footer>
                 <div class="flex flex-wrap items-center justify-end gap-4">
-                    <span class="text-surface-500 dark:text-surface-400">Terakhir diupdate: {{ updateAt }}</span>
+                    <span class="text-surface-500 dark:text-surface-400">Terakhir diupdate: {{
+                        updateAt(getuser.updated_at) }}</span>
                 </div>
             </template>
             <template #icons>
-                <Button icon="pi pi-pencil" text :severity="editmode.account ? 'primary' : 'secondary'"
-                    @click="toggleEditMode" />
+                <Button icon="pi pi-shield" text :severity="editmode.account ? 'primary' : 'secondary'"
+                    @click="toggleEditMode('account')" />
+                <Button icon="pi pi-envelope" text :severity="editmode.email ? 'primary' : 'secondary'"
+                    @click="toggleEditMode('email')" />
             </template>
 
             <img class="avatar" :src="this.default.image + getuser.avatar" @error="onImageError($event)"
@@ -23,9 +70,10 @@
                     <InputGroupAddon>
                         <i class="pi pi-envelope"></i>
                     </InputGroupAddon>
-                    <InputText :readonly="!editmode.account" type="email" v-model="user.email" placeholder="Email"
-                        autocomplete="no-autocomplete" />
+                    <InputText :readonly="!editmode.account && !editmode.email" type="email" v-model="user.email"
+                        placeholder="Email" />
                 </InputGroup>
+                <sub-yesnocomp v-if="editmode.email" :hideno="true" :off="computedValCheckEmail" @yes="save" />
                 <div v-if="editmode.account" class="mb-3 flex flex-col gap-2 mt-3">
                     <InputGroup>
                         <InputGroupAddon>
@@ -52,6 +100,8 @@
                 <sub-yesnocomp v-if="editmode.account" :hideno="true" :off="computedValCheck" @yes="save" />
             </div>
         </Panel>
+
+
     </div>
 </template>
 
@@ -68,9 +118,12 @@ export default {
     data() {
         return {
             user: {},
+            alumni: {},
             editmode: {
-                account: false
-            }
+                account: false,
+                email: false,
+            },
+            today: new Date()
         }
     },
     computed: {
@@ -78,8 +131,11 @@ export default {
             getuser: 'auth/user'
         }),
         updateAt() {
-            const timeAgo = useTimeAgo(new Date(this.getuser.updated_at));
-            return timeAgo;
+            // important
+            return (dateString) => {
+                const timeAgo = useTimeAgo(new Date(dateString));
+                return timeAgo;
+            }
         },
         computedValCheck() {
             const length = this.user.password.length < 8 || this.user.old_password.length < 8;
@@ -87,14 +143,23 @@ export default {
             const exist = Object.values(this.user).some((val) => val === '');
 
             return length || same || exist;
+        },
+        computedValCheckEmail() {
+            const exist = Object.values(this.user.email).some((val) => val === '');
+            const same = this.user.email === this.getuser.email;
+            const email = this.user.email.match(/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/);
+            return exist || same || !email;
         }
     },
     methods: {
         save() {
             const fd = new FormData();
             fd.append('email', this.user.email);
-            fd.append('password', this.user.password);
-            fd.append('password_confirmation', this.user.password_confirmation);
+            if (this.user.old_password) {
+                fd.append('old_password', this.user.old_password);
+                fd.append('password', this.user.password);
+                fd.append('password_confirmation', this.user.password_confirmation);
+            }
             this.$store.dispatch('auth/update', this.user).then((res) => {
                 if (res) {
                     this.$toast.add({ severity: 'success', summary: 'Success', detail: 'Account updated', life: 3000 });
@@ -121,9 +186,27 @@ export default {
                 password: '',
                 password_confirmation: ''
             };
+
+            if (!this.getuser.alumni) return;
+
+            const except = ['updated_at', 'created_at']
+
+            this.alumni = JSON.parse(JSON.stringify(this.getuser.alumni));
+            except.forEach(key => delete this.alumni[key]);
         },
-        toggleEditMode() {
-            this.editmode.account = !this.editmode.account;
+        toggleEditMode(context) {
+            // checkif context included in this.editmode
+            // important, hasOwnProperty and anonymous function
+            if (!this.editmode.hasOwnProperty(context)) return;
+            const reset = (except) => {
+                for (const key in this.editmode) {
+                    if (key !== except) {
+                        this.editmode[key] = false;
+                    }
+                }
+            }
+            reset(context);
+            this.editmode[context] = !this.editmode[context];
             this.loadUser();
         }
 

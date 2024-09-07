@@ -1,5 +1,3 @@
-<!-- !ADD VIEW PESERTA -->
-
 <template>
     <div class="flex flex-col gap-5 main">
         <Message severity="info" icon="pi pi-database" v-if="cached" closable>
@@ -13,8 +11,9 @@
                 Terakhir diambil pada {{ getLastFetchTime() }}
             </span>
         </Message>
-        <DataTable removableSort v-model:filters="filters" ref="dt" v-model:selection="selectedItem" :value="items"
-            paginator :rows="10" :globalFilterFields="['id_event', 'judul', 'tgl_event', 'lokasi_event']" :rowsPerPageOptions="[5, 10, 15]" :size="size.value" dataKey="id_event">
+        <DataTable removableSort showGridlines v-model:filters="filters" ref="dt" v-model:selection="selectedItem"
+            :value="items" paginator :rows="10" :globalFilterFields="['id_event', 'judul', 'tgl_event', 'lokasi_event']"
+            :rowsPerPageOptions="[5, 10, 15]" :size="size.value" dataKey="id_event">
             <template #header>
                 <div class="flex justify-between">
                     <SelectButton v-model="size" size="small" :options="sizeOptions" optionLabel="label"
@@ -47,14 +46,16 @@
             <Column sortable field="lokasi_event" header="Lokasi Event"></Column>
             <Column sortable field="kuota" header="Kuota">
                 <template #body="slotProps">
-                    <span>{{ slotProps.data.peserta }} / {{ slotProps.data.kuota }}</span>
+                    <Button :size="size.value" severity="info" @click="openModal('peserta', slotProps.data.id_event)">
+                        <span class="pi pi-user"></span>
+                        <span class="text-nowrap">{{ slotProps.data.peserta }} / {{ slotProps.data.kuota }}</span>
+                    </Button>
                 </template>
             </Column>
             <Column header="Action">
                 <template #body="slotProps">
                     <div class="flex flex-row gap-1">
-                        <Button :size="size.value" @click="onDelete(slotProps.data.id_event, $event)"
-                            severity="danger">
+                        <Button :size="size.value" @click="onDelete(slotProps.data.id_event, $event)" severity="danger">
                             <span class="pi pi-trash"></span>
                         </Button>
                         <Button :size="size.value" @click="openModal('view', slotProps.data.id_event)" severity="info">
@@ -143,13 +144,14 @@
             </div>
             <div>
                 <p class="mb-2 font-semibold text-xl">Tanggal Event</p>
-                <DatePicker fluid v-model="modalData.items.tgl_event" :min-date="minDate" placeholder="Tanggal Event" showIcon />
+                <DatePicker fluid v-model="modalData.items.tgl_event" :min-date="minDate" placeholder="Tanggal Event"
+                    showIcon />
                 <p class="info" v-if="modalData.items.tgl_event">{{ daysLeft(modalData.items.tgl_event) }}</p>
             </div>
             <div>
                 <p class="mb-2 font-semibold text-xl">Lokasi</p>
                 <InputText fluid v-model="modalData.items.lokasi_event" placeholder="Lokasi Event"
-                    v-tooltip.bottom="{ value: 'Masukkan nama lokasi event di sini', showDelay: 1000, hideDelay: 300 }"/>
+                    v-tooltip.bottom="{ value: 'Masukkan nama lokasi event di sini', showDelay: 1000, hideDelay: 300 }" />
             </div>
             <div>
                 <p class="mb-2 font-semibold text-xl">Kuota</p>
@@ -177,11 +179,49 @@
             </div>
             <div class="flex items-center gap-2 max-w-full">
                 <sub-yesnocomp :off="computedVerification" :submitloading="buttonState.submit_loading" @yes="onSubmit()"
-                    @no="onClear()"/>
+                    @no="onClear()" />
             </div>
         </div>
     </Dialog>
 
+    <!-- IMPORTANT, use v-model -->
+    <Dialog v-if="modalData.peserta" v-model:visible="modal.pesertaVisible" modal dismissableMask
+        :header="modalData.header" @hide="() => { modalData = { newData: null } }">
+        <DataTable showGridlines v-if="modalData.peserta.length != 0" ref="dt2" :value="modalData.peserta" paginator
+            v-model:filters="filters_peserta" :rows="5" :size="size.value"
+            :globalFilterFields="['id_user', 'nama', 'waktu_daftar']" :rowsPerPageOptions="[5, 10, 15]"
+            dataKey="id_user" removableSort>
+            <template #header>
+                <div class="flex justify-between">
+                    <div class="flex flex-row gap-1 justify-center items-center">
+                        <IconField>
+                            <InputIcon>
+                                <i class="pi pi-search" />
+                            </InputIcon>
+                            <InputText v-model="filters_peserta['global'].value" placeholder="Keyword Search" />
+                        </IconField>
+                    </div>
+                </div>
+            </template>
+            <Column field="id_user" sortable header="ID User"></Column>
+            <Column field="nama" sortable header="Nama"></Column>
+            <Column field="waktu_daftar" sortable header="Waktu Daftar">
+                <template #body="slotProps">
+                    <span>{{ formattedDate(slotProps.data.waktu_like) }}</span>
+                </template>
+            </Column>
+            <template #paginatorstart>
+                <Button type="button" icon="pi pi-refresh" text @click="onStart(true, 'peserta')" />
+            </template>
+            <template #paginatorend>
+                <Button icon="pi pi-external-link" label="Export" text @click="exportCSV('dt2')" />
+            </template>
+        </DataTable>
+
+        <div v-else>
+            <p class="text-2xl font-semibold w-full text-center !text-gray-400">Data tidak ditemukan.</p>
+        </div>
+    </Dialog>
 </template>
 
 <script>
@@ -208,7 +248,7 @@ export default {
             minDate: new Date(),
             items: [
             ],
-            size: { label: 'Normal', value: 'null' },
+            size: localStorage.getItem('appstate.size') ? JSON.parse(localStorage.getItem('appstate.size')) : { label: 'Normal', value: 'null' },
             sizeOptions: [
                 { label: 'Small', value: 'small' },
                 { label: 'Normal', value: 'null' },
@@ -217,12 +257,16 @@ export default {
             filters: {
                 global: { value: null, matchMode: FilterMatchMode.CONTAINS },
             },
+            filters_peserta: {
+                global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+            },
             selectedItem: null,
-            cacheDuration: 1800000,
+            cacheDuration: 1000 * 60 * 60,
             cached: false,
             modal: {
                 viewVisible: false,
                 editVisible: false,
+                pesertaVisible: false,
             },
             modalData: {
                 newData: null,
@@ -237,7 +281,7 @@ export default {
     computed: {
         formattedDate() {
             return (dateString) => {
-                const options = { day: '2-digit', month: '2-digit', year: 'numeric'};
+                const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
                 return new Date(dateString).toLocaleDateString('id-ID', options);
             };
         },
@@ -308,7 +352,6 @@ export default {
             }
 
             const now = new Date().getTime();
-
             const lastFetches = JSON.parse(localStorage.getItem('lastFetches')) || {};
             const cacheditems = JSON.stringify(this.localState.data.data);
 
@@ -342,6 +385,7 @@ export default {
                 }
             }
 
+
             switch (context) {
                 case 'view':
                     this.modalData.header = `View event`;
@@ -350,6 +394,21 @@ export default {
                 case 'edit':
                     this.modalData.header = `Edit event`;
                     this.modal.editVisible = true;
+                    break;
+                case 'peserta':
+                    this.modalData.header = `Peserta event`;
+                    const paramform = {
+                        params: {
+                            id_event: id,
+                        },
+                    }
+                    axios.get('event/list-peserta', paramform).then((res) => {
+                        this.modalData.peserta = res.data.data;
+                    }).catch((err) => {
+                        console.log(err);
+                    });
+
+                    this.modal.pesertaVisible = true;
                     break;
                 default:
                     break;
@@ -434,18 +493,8 @@ export default {
             // watch
             if (lastFetches.events) {
                 const date = new Date(parseInt(lastFetches.events))
-                    .toLocaleString('id-ID');
-                const diff = new Date().getTime() - lastFetches.events;
-
-                if (diff < 60000) {
-                    return `${date} (${Math.floor(diff / 1000)} detik yang lalu)`;
-                } else if (diff < 3600000) {
-                    return `${date} (${Math.floor(diff / 60000)} menit yang lalu)`;
-                } else if (diff < 86400000) {
-                    return `${date} (${Math.floor(diff / 3600000)} jam yang lalu)`;
-                } else {
-                    return `${date} (${Math.floor(diff / 86400000)} hari yang lalu)`;
-                }
+                const timeAgo = useTimeAgo(date);
+                return timeAgo;
             } else {
                 return 'Never';
             }
@@ -480,6 +529,14 @@ export default {
                     console.log(err);
                     this.buttonState.submit_loading = false;
                 })
+        },
+    },
+    watch: {
+        'size': {
+            handler() {
+                localStorage.setItem('appstate.size', JSON.stringify(this.appstate.size));
+            },
+            deep: true,
         },
     },
     async mounted() {

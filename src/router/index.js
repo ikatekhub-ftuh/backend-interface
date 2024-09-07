@@ -1,19 +1,27 @@
 import { createWebHistory, createRouter } from 'vue-router'
 import store from '../store'
+import Login from '../views/Login.vue'
+import Home from '../views/Home.vue'
+import DashboardShell from '../shell/DashboardShell.vue'
+import Profile from '../views/subview_dashboard/Profile.vue'
+import NewsInput from '../views/subview_dashboard/input/News.vue'
+import EventInput from '../views/subview_dashboard/input/Event.vue'
+import NewsData from '../views/subview_dashboard/data/News.vue'
+import EventData from '../views/subview_dashboard/data/Event.vue'
 
 const routes = [
     {
         path: '/',
         name: 'home',
-        component: () => import('../views/Home.vue')
+        component: Home
     },
     {
         path: '/login',
         name: 'login',
-        component: () => import('../views/Login.vue')
+        component: Login
     },
     {
-        component: () => import('../shell/DashboardShell.vue'),
+        component: DashboardShell,
         meta: { requiresAuth: true },
         children: [
             {
@@ -24,13 +32,13 @@ const routes = [
             {
                 path: '/profile',
                 name: 'profile',
-                component: () => import('../views/subview_dashboard/Profile.vue')
+                component: Profile,
             },
             // input
             {
                 path: '/input/berita',
                 name: 'input berita',
-                component: () => import('../views/subview_dashboard/input/News.vue'),
+                component: NewsInput,
             },
             {
                 path: '/input/alumni',
@@ -41,7 +49,7 @@ const routes = [
             {
                 path: '/input/event',
                 name: 'input event',
-                component: () => import('../views/subview_dashboard/input/Event.vue'),
+                component: EventInput,
             },
             {
                 path: '/input/loker',
@@ -53,16 +61,22 @@ const routes = [
                 name: 'input perusahaan',
                 component: () => import('../views/subview_dashboard/input/Perusahaan.vue'),
             },
+            // data
             {
                 path: '/data/news',
                 name: 'data news',
-                component: () => import('../views/subview_dashboard/data/News.vue')
+                component: NewsData
             },
             {
                 path: '/data/event',
                 name: 'data event',
-                component: () => import('../views/subview_dashboard/data/Event.vue')
+                component: EventData
             },
+            // {
+            //     path: '/data/alumni',
+            //     name: 'data alumni',
+            //     component: () => import('../views/subview_dashboard/data/Alumni.vue')
+            // },
         ]
     },
 ]
