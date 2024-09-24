@@ -8,7 +8,6 @@
 </template>
 
 <script>
-
 import Editor from 'primevue/editor';
 // patch for quill editor to fix rendering issue
 Editor.methods.renderValue = function renderValue(value) {

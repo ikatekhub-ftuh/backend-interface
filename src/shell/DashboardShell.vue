@@ -1,3 +1,5 @@
+<!-- comment -->
+
 <template>
     <sidebarcomp class="lg:hidden " :items="sidebar_item" :visible="visibleSidebar" @logout="onLogout()"
         @toggle-drawer="toggleSidebar()" />

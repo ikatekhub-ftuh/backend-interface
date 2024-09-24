@@ -1,8 +1,6 @@
 <template>
   <div>
     Home
-    <!-- {{role}} -->
-    <!-- <img :src="" > -->
   </div>
   <div>
     <Button><router-link :to="{name: 'dashboard'}">Lewat Sini</router-link></Button>
