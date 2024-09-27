@@ -52,10 +52,7 @@
             </Column>
             <Column header="Action" class="flex gap-2">
                 <template #body="slotProps">
-                    <Button icon="pi pi-eye" class=" p-button-outlined" />
-                    <Button icon="pi pi-pencil" class=" p-button-outlined" severity="warn" />
-                    <Button icon="pi pi-trash" class=" p-button-outlined" severity="danger"
-                        @click="deleteData(slotProps.data.id_loker, $event)" />
+                    <sub-actiontable :id="slotProps.data.id_loker" @delete="deleteData" />
                 </template>
             </Column>
             <Column v-for="col of hiddenColumns" :key="col.field" :field="col.field" :header="col.header"

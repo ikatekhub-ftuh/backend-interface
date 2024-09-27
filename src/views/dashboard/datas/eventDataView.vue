@@ -1,17 +1,7 @@
-<!--
- TODO:
- TODO:
- TODO:
- TODO:
-    1. Add to snippet router push
-    2. Make the delete functional
-  -->
-
 <template>
     <main class="space-y-2">
         <Toolbar class="mb-6">
             <template #start>
-                <!-- add to snippet router push -->
                 <Button label="Tambah" icon="pi pi-plus" class="mr-2"
                     @click="$router.push({ 'name': 'input event' })" />
                 <Button :label="state._select ? 'Hapus' : 'Pilih Item'"
@@ -30,19 +20,16 @@
                 <Button label="Export" icon="pi pi-upload" severity="secondary" @click="exportData" />
             </template>
         </Toolbar>
-        <DataTable ref="dt" :value="fetchdata.loker" removableSort v-model:filters="filters.filter" paginator :rows="10"
-            v-model:selection="items.selection" :rowsPerPageOptions="[5, 10, 15]"
-            :globalFilterFields="['nama_perusahaan']" :loading="state._fetchloading">
+        <DataTable ref="dt" :value="fetchdata.items" removableSort v-model:filters="filters.filter" paginator :rows="10"
+            v-model:selection="items.selection" :rowsPerPageOptions="[5, 10, 15]" :globalFilterFields="filters.field"
+            :loading="state._fetchloading">
             <Column v-if="state._select" selectionMode="multiple" headerStyle="width: 3rem"></Column>
             <Column v-for="col of columns" :sortable="col.sortable" :key="col.field" :field="col.field"
                 :header="col.header">
             </Column>
             <Column header="Action" class="flex gap-2">
                 <template #body="slotProps">
-                    <Button icon="pi pi-eye" class=" p-button-outlined" />
-                    <Button icon="pi pi-pencil" class=" p-button-outlined" severity="warn" />
-                    <Button icon="pi pi-trash" class=" p-button-outlined" severity="danger"
-                        @click="deleteData(slotProps.data.id_event, $event)" />
+                    <sub-actiontable :id="slotProps.data.id_event" @delete="deleteData" />
                 </template>
             </Column>
             <template #empty>
@@ -66,14 +53,20 @@ export default {
             },
             columns: [
                 { sortable: true, field: 'judul', header: 'Judul' },
+                { sortable: true, field: 'penyelenggara', header: 'Penyelenggara' },
+                { sortable: true, field: 'lokasi_event', header: 'Lokasi' },
+                { sortable: true, field: 'tgl_event', header: 'Tanggal Event' },
+                { sortable: true, field: 'kuota', header: 'Kuota Peserta' },
+                { sortable: true, field: 'peserta', header: 'Peserta' },
             ],
             filters: {
+                field: ['judul', 'penyelenggara', 'lokasi_event', 'tgl_event', 'kuota', 'peserta'],
                 filter: {
                     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
                 }
             },
             fetchdata: {
-                loker: []
+                items: []
             },
             state: {
                 _fetchloading: true,
@@ -132,7 +125,7 @@ export default {
             try {
                 const { data } = await axios.get('event');
                 console.log(data);
-                this.fetchdata.loker = data.data.data
+                this.fetchdata.items = data.data.data
             } catch (error) {
                 uptoast(this.$toast, 'error', 'Gagal mengambil data');
             } finally {

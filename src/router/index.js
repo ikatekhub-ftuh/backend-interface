@@ -20,6 +20,7 @@ import BeritaDataView from '@/views/dashboard/datas/beritaDataView.vue'
 import LokerDataView from '@/views/dashboard/datas/lokerDataView.vue'
 import PerusahaanDataView from '@/views/dashboard/datas/perusahaanDataView.vue'
 import EventDataView from '@/views/dashboard/datas/eventDataView.vue'
+import AlumniDataView from '@/views/dashboard/datas/alumniDataView.vue'
 
 /**
  * Create a new router instance.
@@ -27,6 +28,7 @@ import EventDataView from '@/views/dashboard/datas/eventDataView.vue'
 export const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
     routes: [
+
         {
             path: '/dashboard',
             meta: { shell: true, requiresAuth: true },
@@ -60,6 +62,11 @@ export const router = createRouter({
                             path: "event",
                             name: "data event",
                             component: EventDataView
+                        },
+                        {
+                            path: "alumni",
+                            name: "data alumni",
+                            component: AlumniDataView
                         },
                     ]
                 },

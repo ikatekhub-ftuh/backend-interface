@@ -32,11 +32,16 @@
         <DataTable ref="dt" :value="fetchdata.items.data" removableSort :rows="10" v-model:selection="items.selection"
             :loading="state._fetchloading">
             <Column v-if="state._select" selectionMode="multiple" headerStyle="width: 3rem"></Column>
-            <Column field="judul" header="Judul">
+            <Column field="nama" header="Nama">
                 <template #body="slotProps">
-                    <div class="w-[200px]">
-                        {{ slotProps.data.judul }}
+                    <div class="w-[200px] ">
+                        {{ slotProps.data.nama }}
                     </div>
+                </template>
+            </Column>
+            <Column field="kelamin" header="Kelamin">
+                <template #body="slotProps">
+                    {{ slotProps.data.kelamin === 'l' ? 'Laki-laki' : 'Perempuan' }}
                 </template>
             </Column>
             <Column v-for="col of columns" :sortable="col.sortable" :key="col.field" :field="col.field"
@@ -63,7 +68,6 @@
 
 <script>
 export default {
-    name: 'beritaInput',
     data() {
         return {
             v$: useVuelidate(),
@@ -72,13 +76,15 @@ export default {
                 selection: []
             },
             columns: [
-                { field: 'penulis', header: 'Penulis' },
-                { field: 'total_like', header: 'Total Like' },
-                { field: 'id_kategori_berita', header: 'Kategori' },
+                { sortable: true, field: 'tgl_lahir', header: 'Tanggal Lahir' },
+                { sortable: true, field: 'no_telp', header: 'No. Telp' },
+                { sortable: true, field: 'agama', header: 'Agama' },
+                { sortable: true, field: 'jenjang', header: 'Jenjang' },
+                { sortable: true, field: 'nim', header: 'NIM' },
+                { sortable: true, field: 'jurusan', header: 'Jurusan' },
+                { sortable: true, field: 'angkatan', header: 'Angkatan' },
             ],
             hiddenColumns: [
-                { field: 'konten', header: 'Konten' },
-                { field: 'deskripsi', header: 'Deskripsi' },
             ],
             filters: {
                 search: '',
@@ -109,8 +115,9 @@ export default {
         async initialfetch(page = 1, search = this.filters.search, rows = this.state.pagination._rows) {
             this.state._fetchloading = true;
             try {
-                const { data } = await axios.get('berita' + `?page=${page}` + `&limit=${rows}` + `&search=${search}`);
+                const { data } = await axios.get('alumni?admin=true' + `&page=${page}` + `&limit=${rows}` + `&search=${search}`);
                 this.fetchdata.items = data.data
+                console.log(this.fetchdata.items.data);
             } catch (error) {
                 uptoast(this.$toast, 'error', 'Gagal mengambil data');
             } finally {

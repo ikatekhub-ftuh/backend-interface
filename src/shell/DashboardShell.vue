@@ -65,6 +65,11 @@ export default {
                     icon: 'pi pi-database',
                     items: [
                         {
+                            label: 'Alumni',
+                            icon: 'pi pi-user',
+                            to: 'data alumni'
+                        },
+                        {
                             label: 'Berita',
                             icon: 'pi pi-info-circle',
                             to: 'data berita'
