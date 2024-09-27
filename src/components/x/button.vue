@@ -4,7 +4,7 @@ make sure to have (resolvedLoading)
 
 -->
 <template>
-    <button @click="handleClick" :disabled="isLoading" class="button"
+    <button @click="handleClick" :disabled="isDisabled" class="button"
         :class="secondary ? 'button-secondary' : 'button-primary'">
         <span :class="{ 'opacity-0': isLoading }" class="button-label">
             <slot>Label</slot>
@@ -23,8 +23,13 @@ make sure to have (resolvedLoading)
 
 <script>
 export default {
+
     props: {
         useLoading: {
+            type: Boolean,
+            default: false
+        },
+        disabled: {
             type: Boolean,
             default: false
         },
@@ -42,6 +47,11 @@ export default {
             isLoading: false
         }
     },
+    computed: {
+        isDisabled() {
+            return this.isLoading || this.disabled;
+        }
+    },
     methods: {
         async handleClick() {
             if (this.useSubmit && !this.useLoading) {
@@ -56,6 +66,7 @@ export default {
 
             this.isLoading = true;
             const resolveLoading = () => {
+                console.log('resolving loading');
                 this.isLoading = false;
             };
 

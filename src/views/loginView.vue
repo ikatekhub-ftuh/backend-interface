@@ -2,11 +2,11 @@
     <div class="login-container">
         <div class="login-card">
             <transition name="fade-in-left">
-                <h1 v-if="showTitle" class="login-title">Welcome Back</h1>
+                <h1 v-if="1 == 1" class="login-title">Welcome Back</h1>
             </transition>
             <form @submit.prevent class="login-form">
                 <!-- invisible form -->
-                <input v-model="robotCheck" type="text" style="display: none;">
+                <input v-model="robotCheck" id="confirm_password" type="text" style="display: none;">
                 <div class="form-group">
                     <label for="email" class="form-label">Email</label>
                     <x-input v-model="form.email" @input="v$.form.email.$touch()" type="email"
@@ -26,31 +26,27 @@
                 <x-button class="w-full" :disabled="v$.form.$invalid" useLoading @clicked="handleSubmit">Log
                     In</x-button>
             </form>
-            <div class="bottom-text">
-                <router-link :to="{ name: 'home' }" class="nav-link">Register</router-link>
-                <span>
-                    or
-                </span>
-                <router-link :to="{ name: 'home' }" class="nav-link" @click.prevent="handleForgotPassword">Recover
-                    Account</router-link>
-            </div>
         </div>
     </div>
 </template>
 
 <script>
+import { useAuthStore } from '@/stores/auth';
+
 export default {
     name: 'LoginPage',
     data() {
         return {
+            authStore: useAuthStore(),
             form: {
                 email: '',
                 password: ''
             },
-            isLoading: false,
+            state: {
+                _buttonLoading: false
+            },
             robotCheck: '',
             v$: useVuelidate(),
-            showTitle: false
         }
     },
     validations() {
@@ -61,23 +57,40 @@ export default {
             }
         }
     },
-    mounted() {
-        this.showTitle = true;
-    },
     methods: {
         handleSubmit(resolveLoading) {
-            console.log('Login attempt with:', this.form);
-            setTimeout(() => {
-                resolveLoading();
-                this.$toast.add({ severity: 'success', summary: 'Success', detail: 'Login successful', life: 3000 });
-                this.$router.push({ name: 'home' });
-            }, 2000);
+            if (this.robotCheck) {
+                return;
+            }
+            if (this.v$.form.$invalid) {
+                this.$toast.add({
+                    severity: 'error', summary: 'Login Gagal',
+                    detail: 'Form login tidak valid.', life: 3000
+                });
+                return;
+            }
+            useAuthStore().login(this.form).then((response) => {
+                this.$toast.add({
+                    severity: 'success', summary: 'Login Sukses',
+                    detail: 'Anda berhasil masuk.', life: 3000
+                });
+                // if query contains redirect, redirect to that page
+                if (this.$route.query.redirect) {
+                    this.$router.push(this.$route.query.redirect);
+                } else {
+                    this.$router.push({ name: 'dashboard' });
+                }
+            }).catch((error) => {
+                this.$toast.add({
+                    severity: 'error', summary: 'Login Gagal',
+                    detail: 'Email atau password salah.', life: 3000
+                });
+            }).finally(() => {
+                if (resolveLoading) {
+                    resolveLoading();
+                }
+            });
         },
-        handleForgotPassword() {
-            // Handle forgot password logic
-            console.log('Forgot password clicked');
-        },
-
     }
 }
 </script>

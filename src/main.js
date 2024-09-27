@@ -9,6 +9,7 @@
 
 // styles
 import './assets/main.css'
+import 'primeicons/primeicons.css'
 
 /**
  * Main entry point for the Vue application.
@@ -61,9 +62,18 @@ app.use(PrimeVue, {
 app.use(ConfirmationService)
 app.use(ToastService)
 
+import useSubscriber from './stores/subscriber'
+
+/**
+ * Sets up the subscriber for the Vue application.
+ *
+ * @function useSubscriber
+ * @description Initializes the subscriber for the Vue application.
+ */
+useSubscriber()
+
 // onrefresh data getters
 import getLocalData from './stores/subscriber/onrefresh'
-
 
 /**
  * Mounts the Vue application after getting local data.
@@ -75,13 +85,3 @@ import getLocalData from './stores/subscriber/onrefresh'
 getLocalData().then(() => {
     app.mount('#app')
 })
-
-import useSubscriber from './stores/subscriber'
-
-/**
- * Sets up the subscriber for the Vue application.
- *
- * @function useSubscriber
- * @description Initializes the subscriber for the Vue application.
- */
-useSubscriber()

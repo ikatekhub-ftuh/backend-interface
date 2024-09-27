@@ -1,3 +1,4 @@
+@import './utils/typography.css';
 @import './utils/utility.css';
 @import './utils/component.css';
 @import './utils/animation.css';
@@ -10,6 +11,11 @@
 .center {
     display: flex;
     justify-content: center;
+    align-items: center;
+}
+
+.center-v {
+    display: flex;
     align-items: center;
 }
 

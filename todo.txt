@@ -1,0 +1,5 @@
+1. make a view: {
+    1. make a store for getting and putting item into indexedDB
+}
+2. add color theme (primary and sceondary and shi)
+3. change dashboard items icon

@@ -80,7 +80,7 @@ body {
 }
 
 /* Add this to your global CSS file or in a <style> tag in your App.vue */
-.custom-cursor {
+/* .custom-cursor {
     width: 20px;
     height: 20px;
     border: 2px solid #000;
@@ -96,7 +96,7 @@ body {
 
 .custom-cursor.active {
     opacity: 1;
-}
+} */
 
 /* .v-cursor-element,
 .v-cursor-element * {

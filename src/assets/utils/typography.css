@@ -1,0 +1,4 @@
+/* Add your styles here */
+.info {
+    @apply text-sm text-red-600;
+}

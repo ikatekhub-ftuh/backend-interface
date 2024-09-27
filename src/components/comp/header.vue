@@ -2,34 +2,33 @@
     <header class="header">
         <div class="header-container">
             <nav class="nav">
-                <div class="flex items-center">
+                <div class="flex items-center justify-between w-full">
                     <router-link :to="{ name: 'home' }" class="logo">
                         <img src="@/assets/logo.svg" alt="Logo" class="logo-image" />
                         <span class="logo-text">{{ appdata.title }}</span>
                     </router-link>
                     <ul class="nav-links ml-6">
-                        <li v-for="link, index in navLinks" :key="index">
-                            <router-link :to="{ name: link.name }" activeClass="nav-active" class="nav-link my-bezier">
-                                <span>
-                                    {{ link.text }}
-                                </span>
-                            </router-link>
+                        <li v-if="authStore.isAuthenticated">
+                            <a @click="authStore.logout()" class="nav-link my-bezier">
+                                Logout
+                            </a>
+                        </li>
+                        <li v-else>
+                            <router-link :to="{ name: 'login' }" class="nav-link my-bezier">Login </router-link>
                         </li>
                     </ul>
                 </div>
-                <button class="menu-toggle" @click="toggleMenu">
+                <!-- <button class="menu-toggle" @click="toggleMenu">
                     <abbr class="sr-only">Toggle menu</abbr>
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
                         class="menu-icon">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M4 6h16M4 12h16m-7 6h7" />
                     </svg>
-                </button>
+                </button> -->
             </nav>
         </div>
     </header>
-
-
 </template>
 
 <script>
@@ -37,12 +36,8 @@ export default {
     name: 'comp-header',
     data() {
         return {
+            authStore: useAuthStore(),
             appdata,
-            navLinks: [
-                { text: 'Home', name: 'home' },
-                { text: 'About', name: 'about' },
-                { text: 'Login', name: 'login' },
-            ],
             isMenuOpen: false,
         }
     },
@@ -63,7 +58,7 @@ export default {
 }
 
 .header-container {
-    @apply px-4 w-full;
+    @apply px-8 w-full;
 }
 
 .nav {
@@ -83,10 +78,11 @@ export default {
 }
 
 .nav-links {
-    @apply hidden md:flex space-x-5;
+    @apply flex space-x-5;
 }
 
 .nav-link {
+    cursor: pointer;
     @apply relative text-gray-500 hover:text-black transition-colors duration-500;
 }
 

@@ -3,7 +3,7 @@
  * @description This file is used to restore local storage data
  * when the app is refreshed.
  */
-import { useTestingStore } from "../testing";
+import { useAuthStore } from "../auth";
 
 /**
  * Gets local data. We're returning a promise because we're
@@ -18,8 +18,8 @@ import { useTestingStore } from "../testing";
  */
 export default function getLocalData() {
     return new Promise((resolve) => {
-        useTestingStore().count = JSON.parse(localStorage.getItem('useTestingStore')) || 0;
-        console.log('From store/subscriber/onrefresh | Getting local data');
+        const token = localStorage.getItem('TOKEN') || null;
+        useAuthStore().attempt(token);
         resolve();
     });
 }

@@ -6,6 +6,19 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import appdata from '@/configs/appdata'
 import mainShell from '@/shell/mainShell.vue'
+import { useAuthStore } from '@/stores/auth'
+import DashboardShell from '../shell/DashboardShell.vue'
+import DashboardView from '../views/dashboard/DashboardView.vue'
+import NotfoundView from '@/views/notfoundView.vue'
+import LoginView from '@/views/loginView.vue'
+import BeritaInputView from '@/views/dashboard/input/beritaInputView.vue'
+import LokerInputView from '@/views/dashboard/input/lokerInputView.vue'
+import PerusahaanInputView from '@/views/dashboard/input/perusahaanInputView.vue'
+import { mstr } from '@/modules/core'
+import EventInputView from '@/views/dashboard/input/eventInputView.vue'
+import BeritaDataView from '@/views/dashboard/datas/beritaDataView.vue'
+import LokerDataView from '@/views/dashboard/datas/lokerDataView.vue'
+
 /**
  * Create a new router instance.
  */
@@ -13,6 +26,60 @@ export const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
     routes: [
 
+        {
+            path: '/dashboard',
+            meta: { shell: true, requiresAuth: true },
+            component: DashboardShell,
+            children: [
+                {
+                    path: "",
+                    name: "dashboard",
+                    component: DashboardView
+                },
+                {
+                    path: '/data',
+                    meta: { shell: true },
+                    children: [
+                        {
+                            path: "berita",
+                            name: "data berita",
+                            component: BeritaDataView
+                        },
+                        {
+                            path: "loker",
+                            name: "data loker",
+                            component: LokerDataView
+                        },
+                    ]
+                },
+                {
+                    path: '/input',
+                    meta: { shell: true },
+                    children: [
+                        {
+                            path: "berita",
+                            name: "input berita",
+                            component: BeritaInputView
+                        },
+                        {
+                            path: "loker",
+                            name: "input loker",
+                            component: LokerInputView
+                        },
+                        {
+                            path: "perusahaan",
+                            name: "input perusahaan",
+                            component: PerusahaanInputView
+                        },
+                        {
+                            path: "event",
+                            name: "input event",
+                            component: EventInputView
+                        },
+                    ]
+                }
+            ]
+        },
         {
             path: '/',
             meta: { shell: true },
@@ -37,22 +104,31 @@ export const router = createRouter({
         {
             path: "/login",
             name: "login",
-            component: () => import('../views/loginView.vue')
+            meta: { noAuth: true },
+            component: LoginView
         },
         {
             path: "/:pathMatch(.*)*",
             name: "notfound",
-            component: () => import('../views/notfoundView.vue')
+            component: NotfoundView
         }
     ]
 })
+
 
 /**
  * This function is called before every route change.
  */
 router.beforeEach((to, from, next) => {
-    document.title = `${to.name} - ${appdata.title}`
-    console.log('From router/index.js | Navigating to:', to.name)
+    document.title = `${mstr(to.name).capitalize(true)} - ${appdata.title}`
+    if (to.meta.noAuth && localStorage.getItem("TOKEN")) {
+        next({ name: 'home' })
+        return
+    }
+    if (to.meta.requiresAuth && !localStorage.getItem("TOKEN")) {
+        next({ name: 'login', query: { redirect: to.fullPath } })
+        return
+    }
     next()
 })
 
