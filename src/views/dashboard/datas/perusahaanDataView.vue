@@ -45,9 +45,7 @@
             </Column>
             <Column header="Action">
                 <template #body="slotProps">
-                    <div class="flex gap-2">
-                        <sub-actiontable :id="slotProps.data.id_perusahaan" @delete="deleteData" />
-                    </div>
+                    <sub-actiontable :id="slotProps.data.id_perusahaan" @delete="deleteData" />
                 </template>
             </Column>
             <template #empty>
