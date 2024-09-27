@@ -13,7 +13,7 @@
             <template #start>
                 <!-- add to snippet router push -->
                 <Button label="Tambah" icon="pi pi-plus" class="mr-2"
-                    @click="$router.push({ 'name': 'input loker' })" />
+                    @click="$router.push({ 'name': 'input perusahaan' })" />
                 <Button :label="state._select ? 'Hapus' : 'Pilih Item'"
                     :icon="state._select ? 'pi pi-trash' : 'pi pi-check-square'" severity="danger"
                     :outlined="!state._select" @click="toggleSelect(false, $event)" />
@@ -32,19 +32,12 @@
         </Toolbar>
         <DataTable ref="dt" :value="fetchdata.loker" removableSort v-model:filters="filters.filter" paginator :rows="10"
             v-model:selection="items.selection" :rowsPerPageOptions="[5, 10, 15]"
-            :globalFilterFields="['judul', 'perusahaan.nama_perusahaan', 'lokasi', 'role']"
-            :loading="state._fetchloading">
+            :globalFilterFields="['nama_perusahaan']" :loading="state._fetchloading">
             <Column v-if="state._select" selectionMode="multiple" headerStyle="width: 3rem"></Column>
-            <Column sortable field="judul" header="Judul">
+            <Column field="logo" header="Logo" headerStyle="width: 120px">
                 <template #body="slotProps">
-                    <div class="w-[200px]">
-                        {{ slotProps.data.judul }}
-                    </div>
-                </template>
-            </Column>
-            <Column sortable field="pengalaman_kerja" header="Pengalaman">
-                <template #body="slotProps">
-                    {{ slotProps.data.pengalaman_kerja }} Tahun
+                    <Image :src="appdata.storageLink + slotProps.data.logo" alt=" " width="250" preview
+                        class="w-[120px] h-fit max-h-[120px] object-cover" />
                 </template>
             </Column>
             <Column v-for="col of columns" :sortable="col.sortable" :key="col.field" :field="col.field"
@@ -55,11 +48,8 @@
                     <Button icon="pi pi-eye" class=" p-button-outlined" />
                     <Button icon="pi pi-pencil" class=" p-button-outlined" severity="warn" />
                     <Button icon="pi pi-trash" class=" p-button-outlined" severity="danger"
-                        @click="deleteData(slotProps.data.id_loker, $event)" />
+                        @click="deleteData(slotProps.data.id_perusahaan, $event)" />
                 </template>
-            </Column>
-            <Column v-for="col of hiddenColumns" :key="col.field" :field="col.field" :header="col.header"
-                class="hidden">
             </Column>
             <template #empty>
                 <sub-emptytable />
@@ -72,24 +62,16 @@
 import { FilterMatchMode } from '@primevue/core/api'
 
 export default {
-    name: 'beritaInput',
     data() {
         return {
             v$: useVuelidate(),
+            appdata,
             clear: {},
             items: {
                 selection: []
             },
             columns: [
-                // { "id_loker": 1, "judul": "Admin Pengelola Data Alumni ANTEK HUB", "id_perusahaan": 1, "slug": "admin-pengelola-data-alumni-antek-hub", "konten": "Mengelola database alumni untuk memastikan informasi selalu up-to-date.<br>Memastikan validitas dan integritas data yang masuk ke dalam sistem.<br>Mengkoordinasikan kegiatan dan acara terkait alumni dengan departemen terkait.<br>Menghasilkan laporan berkala mengenai status dan statistik alumni.<br>Berkomunikasi dengan alumni melalui berbagai saluran untuk keperluan administrasi.", "deskripsi": "Mengelola database alumni untuk memastikan informasi selalu up-to-date.", "tgl_selesai": "2024-10-01", "lokasi": "Makassar", "pengalaman_kerja": "2", "role": "Purna Waktu", "created_at": "2024-08-31T07:41:55.000000Z", "updated_at": "2024-08-31T07:41:55.000000Z", "perusahaan": { "id_perusahaan": 1, "nama_perusahaan": "FAKULTAS TEKNIK UNHAS", "logo": "gambar/loker/logo-perusahaan.png" } }
-                { sortable: true, field: 'tgl_selesai', header: 'Selesai' },
-                { field: 'lokasi', header: 'Lokasi' },
-                { field: 'role', header: 'Jenis' },
-                { field: 'perusahaan.nama_perusahaan', header: 'Perusahaan' }
-            ],
-            hiddenColumns: [
-                { field: 'konten', header: 'Konten' },
-                { field: 'deskripsi', header: 'Deskripsi' },
+                { sortable: true, field: 'nama_perusahaan', header: 'Nama' },
             ],
             filters: {
                 filter: {
@@ -122,7 +104,7 @@ export default {
             }
 
             if (this.items.selection.length > 0) {
-                const ids = this.items.selection.map((item) => item.id_loker);
+                const ids = this.items.selection.map((item) => item.id_perusahaan);
                 this.deleteData(ids, event);
             } else {
                 this.state._select = !this.state._select;
@@ -132,7 +114,7 @@ export default {
             ids = Array.isArray(ids) ? ids : [ids];
             const accept = () => {
                 event.target.disabled = true;
-                axios.delete('loker', { data: { id_loker: ids } })
+                axios.delete('loker/perusahaan', { data: { id_perusahaan: ids } })
                     .then(() => {
                         uptoast(this.$toast, 'success', 'Berhasil menghapus data');
                         this.initialfetch();
@@ -154,8 +136,8 @@ export default {
         async initialfetch() {
             this.state._fetchloading = true;
             try {
-                const { data } = await axios.get('loker?limit=-1');
-                this.fetchdata.loker = data.data.data
+                const { data } = await axios.get('loker/perusahaan');
+                this.fetchdata.loker = data.data
             } catch (error) {
                 uptoast(this.$toast, 'error', 'Gagal mengambil data');
             } finally {

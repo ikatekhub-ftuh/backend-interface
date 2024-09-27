@@ -32,7 +32,7 @@ export default defineConfig({
                 'pinia',
                 {
                     'axios': [['default', 'axios']],
-                    '@/modules/core': ['uptoast', 'mstr'],
+                    '@/modules/core': ['uptoast', 'mstr', 'upconfirm', 'coreTesting'],
                     '@/configs/appdata': [['default', 'appdata']],
                     '@/stores/auth': ['useAuthStore'],
                     '@vuelidate/core': [['default', 'useVuelidate']],

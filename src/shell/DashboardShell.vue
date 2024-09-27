@@ -74,6 +74,16 @@ export default {
                             icon: 'pi pi-briefcase',
                             to: 'data loker'
                         },
+                        {
+                            label: 'Event',
+                            icon: 'pi pi-calendar-plus',
+                            to: 'data event'
+                        },
+                        {
+                            label: 'Perusahaan',
+                            icon: 'pi pi-building',
+                            to: 'data perusahaan'
+                        },
                     ]
                 },
                 {

@@ -48,3 +48,21 @@ export const uptoast = (toast, severity, detail, summary = severity, life = 3000
         }
     }
 }
+
+export const upconfirm = (confirm, event, acceptCallBack = (() => { }), rejectCallBack = (() => { }), header, message,) => {
+    confirm.require({
+        target: event.currentTarget,
+        icon: 'pi pi-exclamation-triangle',
+        acceptProps: { label: 'Ya', severity: 'success' },
+        rejectProps: { label: 'Tidak', severity: 'danger' },
+        group: window.innerWidth < 1024 ? 'dialog' : 'popup',
+        header: header || 'Konfirmasi',
+        message: message || 'Apakah anda yakin?',
+        accept: acceptCallBack,
+        reject: rejectCallBack,
+    })
+}
+
+export const coreTesting = (text) => {
+    console.log(text)
+}
